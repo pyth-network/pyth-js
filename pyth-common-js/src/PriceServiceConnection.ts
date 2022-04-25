@@ -1,22 +1,21 @@
 import { HexString, PriceFeed } from "@pythnetwork/pyth-sdk-js";
 import axios, { AxiosInstance } from "axios";
-import axiosRetry from 'axios-retry';
-
+import axiosRetry from "axios-retry";
 
 export type DurationInMs = number;
 
 export type PriceServiceConnectionConfig = {
-  endpoint: string,
+  endpoint: string;
   /* Timeout of each request (for all of retries). Default: 5000ms */
-  timeout?: DurationInMs,
+  timeout?: DurationInMs;
   /**
    * Number of retrials if it's failing to get price. Default: 3.
-   * 
+   *
    * Connection uses exponential back-off for the delay between retrials
    * and will timeout regardless with the configured `timeout`.
    */
-  retries?: number,
-}
+  retries?: number;
+};
 
 export class PriceServiceConnection {
   private client: AxiosInstance;
@@ -32,14 +31,20 @@ export class PriceServiceConnection {
     });
   }
 
-  async getLatestPriceFeeds(priceIds: HexString[]): Promise<PriceFeed[] | undefined> {
+  async getLatestPriceFeeds(
+    priceIds: HexString[]
+  ): Promise<PriceFeed[] | undefined> {
     if (priceIds.length === 0) {
       return [];
     }
 
-    let response = await this.client.get(`/latest_price_feed?id[]=${priceIds.join("&id[]=")}`);
+    let response = await this.client.get(
+      `/latest_price_feed?id[]=${priceIds.join("&id[]=")}`
+    );
     let priceFeedsJson = response.data as any[];
-    return priceFeedsJson.map(priceFeedJson => PriceFeed.fromJson(priceFeedJson));
+    return priceFeedsJson.map((priceFeedJson) =>
+      PriceFeed.fromJson(priceFeedJson)
+    );
   }
 
   async getLatestVaaBytes(priceId: HexString): Promise<string> {

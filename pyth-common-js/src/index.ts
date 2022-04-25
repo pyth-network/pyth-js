@@ -1,1 +1,4 @@
-export { PriceServiceConnection, PriceServiceConnectionConfig } from "./PriceServiceConnection";
+export {
+  PriceServiceConnection,
+  PriceServiceConnectionConfig,
+} from "./PriceServiceConnection";
