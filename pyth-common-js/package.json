@@ -1,0 +1,42 @@
+{
+  "name": "@pythnetwork/pyth-common-js",
+  "version": "0.1.0",
+  "description": "Pyth Network Common Utils in JS",
+  "homepage": "https://pyth.network",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/**/*"
+  ],
+  "repository": "https://github.com/pyth-network/pyth-js/pyth-common-js",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc",
+    "example": "npm run build && node lib/examples/PriceServiceClient.js",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint src/",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags"
+  },
+  "keywords": [
+    "pyth",
+    "oracle"
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/jest": "^27.4.1",
+    "@types/yargs": "^17.0.10",
+    "jest": "^27.5.1",
+    "prettier": "^2.6.2",
+    "ts-jest": "^27.1.4",
+    "yargs": "^17.4.1"
+  },
+  "dependencies": {
+    "@pythnetwork/pyth-sdk-js": "^0.1.0",
+    "axios": "^0.26.1",
+    "axios-retry": "^3.2.4"
+  }
+}
