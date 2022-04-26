@@ -1,7 +1,7 @@
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
-import { PriceServiceConnection } from "../PriceServiceConnection";
+import { PriceServiceConnection } from "../index";
 
 const argv = yargs(hideBin(process.argv))
   .option("endpoint", {
