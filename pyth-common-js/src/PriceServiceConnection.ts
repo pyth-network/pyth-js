@@ -9,10 +9,10 @@ export type PriceServiceConnectionConfig = {
   /* Timeout of each request (for all of retries). Default: 5000ms */
   timeout?: DurationInMs;
   /**
-   * Number of retrials if it's failing to get price. Default: 3.
+   * Number of times a request will be retried before the API returns a failure. Default: 3.
    *
-   * Connection uses exponential back-off for the delay between retrials
-   * and will timeout regardless with the configured `timeout`.
+   * The connection uses exponential back-off for the delay between retries. However,
+   * it will timeout regardless of the retries at the configured `timeout` time.
    */
   retries?: number;
 };
@@ -39,7 +39,12 @@ export class PriceServiceConnection {
     }
 
     let response = await this.client.get(
-      `/latest_price_feed?id[]=${priceIds.join("&id[]=")}`
+      '/latest_price_feed',
+      {
+        params: {
+          id: priceIds,
+        }
+      }
     );
     let priceFeedsJson = response.data as any[];
     return priceFeedsJson.map((priceFeedJson) =>
@@ -48,7 +53,14 @@ export class PriceServiceConnection {
   }
 
   async getLatestVaaBytes(priceId: HexString): Promise<string> {
-    let response = await this.client.get(`/latest_vaa_bytes?id=${priceId}`);
+    let response = await this.client.get(
+      '/latest_vaa_bytes',
+      {
+        params: {
+          id: priceId,
+        }
+      }
+    );
     return response.data;
   }
 }
