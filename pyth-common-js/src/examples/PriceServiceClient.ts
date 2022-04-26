@@ -19,11 +19,13 @@ const argv = yargs(hideBin(process.argv))
   .parseSync();
 
 async function run() {
-  let x = new PriceServiceConnection({ endpoint: argv.endpoint });
-  let priceFeed = await x.getLatestPriceFeeds(argv.priceId as string[]);
+  const connection = new PriceServiceConnection({ endpoint: argv.endpoint });
+  const priceFeed = await connection.getLatestPriceFeeds(
+    argv.priceId as string[]
+  );
   console.log(priceFeed);
   console.log(priceFeed?.at(0)?.getCurrentPrice());
-  console.log(await x.getLatestVaaBytes(argv.priceId.at(0) as string));
+  console.log(await connection.getLatestVaaBytes(argv.priceId.at(0) as string));
 }
 
 run();

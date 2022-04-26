@@ -38,19 +38,19 @@ export class PriceServiceConnection {
       return [];
     }
 
-    let response = await this.client.get("/latest_price_feed", {
+    const response = await this.client.get("/latest_price_feed", {
       params: {
         id: priceIds,
       },
     });
-    let priceFeedsJson = response.data as any[];
+    const priceFeedsJson = response.data as any[]; // eslint-disable-line @typescript-eslint/no-explicit-any
     return priceFeedsJson.map((priceFeedJson) =>
       PriceFeed.fromJson(priceFeedJson)
     );
   }
 
   async getLatestVaaBytes(priceId: HexString): Promise<string> {
-    let response = await this.client.get("/latest_vaa_bytes", {
+    const response = await this.client.get("/latest_vaa_bytes", {
       params: {
         id: priceId,
       },
