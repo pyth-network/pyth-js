@@ -51,6 +51,7 @@ export class PriceServiceConnection {
 
   async getLatestVaaBytes(priceId: HexString): Promise<string> {
     const response = await this.client.get("/latest_vaa_bytes", {
+      responseType: "arraybuffer",
       params: {
         id: priceId,
       },
