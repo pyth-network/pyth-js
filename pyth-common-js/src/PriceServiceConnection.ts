@@ -31,7 +31,13 @@ export class PriceServiceConnection {
     });
   }
 
-  async getLatestPriceFeeds(
+  /**
+   * Fetch Latest Price Feeds of given Price Ids.
+   *
+   * @param priceIds
+   * @returns array of Price Feeds
+   */
+  async getLatestPriceFeed(
     priceIds: HexString[]
   ): Promise<PriceFeed[] | undefined> {
     if (priceIds.length === 0) {
@@ -49,7 +55,17 @@ export class PriceServiceConnection {
     );
   }
 
-  async getLatestVaaBytes(priceId: HexString): Promise<string> {
+  /**
+   * Fetch latest VAA of a price Id as a byte string from the api.
+   *
+   * This function is coupled to wormhole implemntation and chain specific libraries use
+   * it to expose on-demand relaying functionality. This should not be exposed as a public
+   * api to the users, so it's annotated protected.
+   *
+   * @param priceId as a Hex String
+   * @returns byte string of vaa
+   */
+  protected async getLatestVaaBytes(priceId: HexString): Promise<Buffer> {
     const response = await this.client.get("/latest_vaa_bytes", {
       responseType: "arraybuffer",
       params: {
