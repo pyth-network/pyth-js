@@ -5,7 +5,7 @@ import axiosRetry from "axios-retry";
 export type DurationInMs = number;
 
 export type PriceServiceConnectionConfig = {
-  endpoint: string;
+  httpEndpoint: string;
   /* Timeout of each request (for all of retries). Default: 5000ms */
   timeout?: DurationInMs;
   /**
@@ -22,7 +22,7 @@ export class PriceServiceConnection {
 
   constructor(config: PriceServiceConnectionConfig) {
     this.client = axios.create({
-      baseURL: config.endpoint,
+      baseURL: config.httpEndpoint,
       timeout: config.timeout || 5000,
     });
     axiosRetry(this.client, {
@@ -49,7 +49,7 @@ export class PriceServiceConnection {
         id: priceIds,
       },
     });
-    const priceFeedsJson = response.data as any[]; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const priceFeedsJson = response.data as any[];
     return priceFeedsJson.map((priceFeedJson) =>
       PriceFeed.fromJson(priceFeedJson)
     );

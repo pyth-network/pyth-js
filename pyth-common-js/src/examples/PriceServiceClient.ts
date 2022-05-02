@@ -4,13 +4,16 @@ import { hideBin } from "yargs/helpers";
 import { PriceServiceConnection } from "../index";
 
 const argv = yargs(hideBin(process.argv))
-  .option("endpoint", {
-    description: "Which endpoints to use",
+  .option("http", {
+    description:
+      "HTTP endpoint for the Price service. e.g: https://endpoint/example",
     type: "string",
     required: true,
   })
   .option("price-id", {
-    description: "Which price id to query",
+    description:
+      "Price id (in hex without leading 0x) to fetch" +
+      ", you can provide more than one price id. e.g: f9c0172ba10dfa4d19088d...",
     type: "array",
     required: true,
   })
@@ -19,13 +22,12 @@ const argv = yargs(hideBin(process.argv))
   .parseSync();
 
 async function run() {
-  const connection = new PriceServiceConnection({ endpoint: argv.endpoint });
-  const priceFeed = await connection.getLatestPriceFeeds(
+  const connection = new PriceServiceConnection({ httpEndpoint: argv.http });
+  const priceFeed = await connection.getLatestPriceFeed(
     argv.priceId as string[]
   );
   console.log(priceFeed);
   console.log(priceFeed?.at(0)?.getCurrentPrice());
-  console.log(await connection.getLatestVaaBytes(argv.priceId.at(0) as string));
 }
 
 run();
