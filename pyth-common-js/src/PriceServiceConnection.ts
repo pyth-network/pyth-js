@@ -59,8 +59,8 @@ export class PriceServiceConnection {
    * Fetch latest VAA of a price Id as a byte string from the api.
    *
    * This function is coupled to wormhole implemntation and chain specific libraries use
-   * it to expose on-demand relaying functionality. This should not be exposed as a public
-   * api to the users, so it's annotated protected.
+   * it to expose on-demand relaying functionality. Hence, this is not be exposed as a public
+   * api to the users and is annotated as protected.
    *
    * @param priceId as a Hex String
    * @returns byte string of vaa
