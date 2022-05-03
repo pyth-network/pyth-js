@@ -24,7 +24,7 @@ async function run() {
   const priceFeed = await connection.getLatestPriceFeed(argv.priceId as string[]);
   console.log(priceFeed);
   console.log(priceFeed?.at(0)?.getCurrentPrice());
-  console.log(await connection.getPythPriceUpdateMessage(argv.priceId.at(0) as string, "123", "123"));
+  console.log(await connection.getPythPriceUpdateMessage(argv.priceId as string[], "123", "123"));
 }
 
 run();

@@ -19,7 +19,7 @@ const argv = yargs(hideBin(process.argv))
   })
   .option("price-id", {
     description: "Price id (in hex) to relay",
-    type: "string",
+    type: "array",
     required: true,
   })
   .option('mnemonic', {
@@ -53,32 +53,32 @@ const lcd = new LCDClient(terraHost);
 const wallet = lcd.wallet(new MnemonicKey({
   mnemonic: argv.mnemonic
 }));
-const priceId = argv.priceId;
+const priceIds = argv.priceId as string[];
 
 async function run() {
-  const priceFeed = await connection.getLatestPriceFeed([priceId]);
+  const priceFeed = await connection.getLatestPriceFeed(priceIds);
   console.log(priceFeed);
 
   const gasPrices = await axios
     .get(TERRA_GAS_PRICES_URL)
     .then((result) => result.data);
 
-  const msg = await connection.getPythPriceUpdateMessage(priceId, pythContractAddr, wallet.key.accAddress);
-  console.log(msg);
+  const msgs = await connection.getPythPriceUpdateMessage(priceIds, pythContractAddr, wallet.key.accAddress);
+  console.log(msgs);
 
   const feeEstimate = await lcd.tx.estimateFee(
     [{
       sequenceNumber: await wallet.sequence(),
     }],
     {
-      msgs: [msg],
+      msgs: msgs,
       feeDenoms,
       gasPrices,
     }
   );
 
   const tx = await wallet.createAndSignTx({
-    msgs: [msg],
+    msgs: msgs,
     feeDenoms,
     gasPrices,
     fee: feeEstimate,
