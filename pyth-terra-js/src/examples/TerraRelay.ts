@@ -3,7 +3,7 @@ import axios from "axios";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
-import { TerraPriceServiceConnection, DurationInMs } from "../index";
+import { TerraPriceServiceConnection, CONTRACT_ADDR } from "../index";
 
 const argv = yargs(hideBin(process.argv))
   .option('network', {
@@ -38,14 +38,13 @@ const CONFIG: Record<string, any>  = {
       chainID: "bombay-12",
       name: "testnet",
     },
-    pythContractAddr: "terra1wzs3rgzgjdde3kg7k3aaz6qx7sc5dcwxqe9fuc"
   }
 }
 
 export const TERRA_GAS_PRICES_URL = "https://fcd.terra.dev/v1/txs/gas_prices";
 
 const terraHost = CONFIG[argv.network].terraHost;
-const pythContractAddr = CONFIG[argv.network].pythContractAddr;
+const pythContractAddr = CONTRACT_ADDR[argv.network];
 const feeDenoms = ["uluna"];
 
 const connection = new TerraPriceServiceConnection({ httpEndpoint: argv.http });

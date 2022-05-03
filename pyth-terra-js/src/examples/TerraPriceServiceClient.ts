@@ -1,7 +1,7 @@
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
-import { TerraPriceServiceConnection } from "../index";
+import { CONTRACT_ADDR, TerraPriceServiceConnection } from "../index";
 
 const argv = yargs(hideBin(process.argv))
   .option("http", {
@@ -24,7 +24,13 @@ async function run() {
   const priceFeed = await connection.getLatestPriceFeed(argv.priceId as string[]);
   console.log(priceFeed);
   console.log(priceFeed?.at(0)?.getCurrentPrice());
-  console.log(await connection.getPythPriceUpdateMessage(argv.priceId as string[], "123", "123"));
+
+  const msgs = await connection.getPythPriceUpdateMessage(
+    argv.priceId as string[],
+    CONTRACT_ADDR["testnet"],
+    "terra123456789abcdefghijklmonpqrstuvwxyz1234"
+  );
+  console.log(msgs);
 }
 
 run();
