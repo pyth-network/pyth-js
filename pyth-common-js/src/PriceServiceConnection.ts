@@ -5,6 +5,7 @@ import axiosRetry from "axios-retry";
 export type DurationInMs = number;
 
 export type PriceServiceConnectionConfig = {
+  /* HTTP Endpoint of the price service. Example: https://website/example */
   httpEndpoint: string;
   /* Timeout of each request (for all of retries). Default: 5000ms */
   timeout?: DurationInMs;
@@ -33,11 +34,12 @@ export class PriceServiceConnection {
 
   /**
    * Fetch Latest Price Feeds of given Price Ids.
+   * It will throw an axios error if there is a network problem or the Price Service returns non-ok result (e.g: Invalid price ids)
    *
-   * @param priceIds
-   * @returns array of Price Feeds
+   * @param priceIds Array of price feed ids as an array of Hex Strings without leading 0x.
+   * @returns Array of Price Feeds
    */
-  async getLatestPriceFeed(
+  async getLatestPriceFeeds(
     priceIds: HexString[]
   ): Promise<PriceFeed[] | undefined> {
     if (priceIds.length === 0) {
@@ -57,15 +59,16 @@ export class PriceServiceConnection {
 
   /**
    * Fetch latest VAA of a price Id as a byte string from the api.
-   *
+   * It will throw an axios error if there is a network problem or the Price Service returns non-ok result (e.g: Invalid price ids)
+   * 
    * This function is coupled to wormhole implemntation and chain specific libraries use
    * it to expose on-demand relaying functionality. Hence, this is not be exposed as a public
    * api to the users and is annotated as protected.
    *
-   * @param priceIds List of id of the price feeds as an array of Hex Strings without leading 0x.
+   * @param priceIds Array of price feed ids as an array of Hex Strings without leading 0x.
    * @returns Array of base64 encoded VAAs.
    */
-  protected async getLatestVaaBytes(priceIds: HexString[]): Promise<string[]> {
+  protected async getLatestVaas(priceIds: HexString[]): Promise<string[]> {
     const response = await this.client.get("/latest_vaa_bytes", {
       params: {
         id: priceIds,
