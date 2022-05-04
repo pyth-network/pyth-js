@@ -62,8 +62,8 @@ export class PriceServiceConnection {
    * it to expose on-demand relaying functionality. Hence, this is not be exposed as a public
    * api to the users and is annotated as protected.
    *
-   * @param priceId as a Hex String
-   * @returns byte string of vaa
+   * @param priceIds List of id of the price feeds as an array of Hex Strings without leading 0x.
+   * @returns Array of base64 encoded VAAs.
    */
   protected async getLatestVaaBytes(priceIds: HexString[]): Promise<string[]> {
     const response = await this.client.get("/latest_vaa_bytes", {
