@@ -33,11 +33,11 @@ export class PriceServiceConnection {
   }
 
   /**
-   * Fetch Latest Price Feeds of given Price Ids.
-   * It will throw an axios error if there is a network problem or the Price Service returns non-ok result (e.g: Invalid price ids)
+   * Fetch Latest PriceFeeds of given price ids.
+   * This will throw an axios error if there is a network problem or the price service returns a non-ok response (e.g: Invalid price ids)
    *
-   * @param priceIds Array of price feed ids as an array of Hex Strings without leading 0x.
-   * @returns Array of Price Feeds
+   * @param priceIds Array of hex-encoded price ids without leading 0x.
+   * @returns Array of PriceFeeds
    */
   async getLatestPriceFeeds(
     priceIds: HexString[]
@@ -58,14 +58,14 @@ export class PriceServiceConnection {
   }
 
   /**
-   * Fetch latest VAA of a price Id as a byte string from the api.
-   * It will throw an axios error if there is a network problem or the Price Service returns non-ok result (e.g: Invalid price ids)
+   * Fetch latest VAA of given price ids.
+   * This will throw an axios error if there is a network problem or the price service returns a non-ok response (e.g: Invalid price ids)
    * 
    * This function is coupled to wormhole implemntation and chain specific libraries use
    * it to expose on-demand relaying functionality. Hence, this is not be exposed as a public
    * api to the users and is annotated as protected.
    *
-   * @param priceIds Array of price feed ids as an array of Hex Strings without leading 0x.
+   * @param priceIds Array of hex-encoded price ids without leading 0x.
    * @returns Array of base64 encoded VAAs.
    */
   protected async getLatestVaas(priceIds: HexString[]): Promise<string[]> {
