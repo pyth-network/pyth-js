@@ -46,9 +46,9 @@ export class PriceServiceConnection {
       return [];
     }
 
-    const response = await this.client.get("/latest_price_feed", {
+    const response = await this.client.get("/latest_price_feeds", {
       params: {
-        id: priceIds,
+        ids: priceIds,
       },
     });
     const priceFeedsJson = response.data as any[];
@@ -69,9 +69,9 @@ export class PriceServiceConnection {
    * @returns Array of base64 encoded VAAs.
    */
   protected async getLatestVaas(priceIds: HexString[]): Promise<string[]> {
-    const response = await this.client.get("/latest_vaa_bytes", {
+    const response = await this.client.get("/latest_vaas", {
       params: {
-        id: priceIds,
+        ids: priceIds,
       },
     });
     return response.data;
