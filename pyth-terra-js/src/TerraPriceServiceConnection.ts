@@ -3,9 +3,9 @@ import { MsgExecuteContract } from "@terra-money/terra.js";
 
 export class TerraPriceServiceConnection extends PriceServiceConnection {
   /**
-   * Creates Terra messages for updating given price feeds.
-   * The messages will succeed even if the prices are updated with newer messages;
-   * Hence, returned messages can be included alongside other messages in a single transaction.
+   * Creates Terra messages for updating given price feeds. 
+   * The messages can be included alongside other messages in a single transaction.
+   * They will succeed even if the prices are updated with newer messages;
    * 
    * Example usage:
    * ```typescript
