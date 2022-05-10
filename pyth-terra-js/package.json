@@ -1,7 +1,7 @@
 {
-  "name": "@pythnetwork/pyth-common-js",
+  "name": "@pythnetwork/pyth-terra-js",
   "version": "0.1.0",
-  "description": "Pyth Network Common Utils in JS",
+  "description": "Pyth Network Terra Utils in JS",
   "homepage": "https://pyth.network",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

@@ -5,6 +5,7 @@ import axiosRetry from "axios-retry";
 export type DurationInMs = number;
 
 export type PriceServiceConnectionConfig = {
+  /* HTTP Endpoint of the price service. Example: https://website/example */
   httpEndpoint: string;
   /* Timeout of each request (for all of retries). Default: 5000ms */
   timeout?: DurationInMs;
@@ -32,21 +33,22 @@ export class PriceServiceConnection {
   }
 
   /**
-   * Fetch Latest Price Feeds of given Price Ids.
+   * Fetch Latest PriceFeeds of given price ids.
+   * This will throw an axios error if there is a network problem or the price service returns a non-ok response (e.g: Invalid price ids)
    *
-   * @param priceIds
-   * @returns array of Price Feeds
+   * @param priceIds Array of hex-encoded price ids.
+   * @returns Array of PriceFeeds
    */
-  async getLatestPriceFeed(
+  async getLatestPriceFeeds(
     priceIds: HexString[]
   ): Promise<PriceFeed[] | undefined> {
     if (priceIds.length === 0) {
       return [];
     }
 
-    const response = await this.client.get("/latest_price_feed", {
+    const response = await this.client.get("/latest_price_feeds", {
       params: {
-        id: priceIds,
+        ids: priceIds,
       },
     });
     const priceFeedsJson = response.data as any[];
@@ -56,19 +58,20 @@ export class PriceServiceConnection {
   }
 
   /**
-   * Fetch latest VAA of a price Id as a byte string from the api.
-   *
+   * Fetch latest VAA of given price ids.
+   * This will throw an axios error if there is a network problem or the price service returns a non-ok response (e.g: Invalid price ids)
+   * 
    * This function is coupled to wormhole implemntation and chain specific libraries use
    * it to expose on-demand relaying functionality. Hence, this is not be exposed as a public
    * api to the users and is annotated as protected.
    *
-   * @param priceIds List of id of the price feeds as an array of Hex Strings without leading 0x.
+   * @param priceIds Array of hex-encoded price ids.
    * @returns Array of base64 encoded VAAs.
    */
-  protected async getLatestVaaBytes(priceIds: HexString[]): Promise<string[]> {
-    const response = await this.client.get("/latest_vaa_bytes", {
+  protected async getLatestVaas(priceIds: HexString[]): Promise<string[]> {
+    const response = await this.client.get("/latest_vaas", {
       params: {
-        id: priceIds,
+        ids: priceIds,
       },
     });
     return response.data;
