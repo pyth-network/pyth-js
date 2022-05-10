@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "Pyth Network Terra Utils in JS",
   "homepage": "https://pyth.network",
+  "author": {
+    "name": "Pyth Data Association"
+  },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
@@ -10,7 +13,7 @@
   ],
   "repository": "https://github.com/pyth-network/pyth-js/pyth-common-js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "build": "tsc",
     "example-client": "npm run build && node lib/examples/TerraPriceServiceClient.js",
     "example-relay": "npm run build && node lib/examples/TerraRelay.js",
@@ -41,7 +44,7 @@
     "yargs": "^17.4.1"
   },
   "dependencies": {
-    "@pythnetwork/pyth-common-js": "file:../pyth-common-js",
+    "@pythnetwork/pyth-common-js": "^0.1.0",
     "@terra-money/terra.js": "^3.0.11",
     "axios": "^0.26.1"
   }
