@@ -5,7 +5,8 @@ import { CONTRACT_ADDR, TerraPriceServiceConnection } from "../index";
 
 const argv = yargs(hideBin(process.argv))
   .option("http", {
-    description: "HTTP endpoint for the Price service. e.g: https://endpoint/example",
+    description:
+      "HTTP endpoint for the Price service. e.g: https://endpoint/example",
     type: "string",
     required: true,
   })
@@ -21,9 +22,13 @@ const argv = yargs(hideBin(process.argv))
   .parseSync();
 
 async function run() {
-  const connection = new TerraPriceServiceConnection({ httpEndpoint: argv.http });
+  const connection = new TerraPriceServiceConnection({
+    httpEndpoint: argv.http,
+  });
   console.log(argv.priceIds);
-  const priceFeeds = await connection.getLatestPriceFeeds(argv.priceIds as string[]);
+  const priceFeeds = await connection.getLatestPriceFeeds(
+    argv.priceIds as string[]
+  );
   console.log(priceFeeds);
   console.log(priceFeeds?.at(0)?.getCurrentPrice());
 
