@@ -1,8 +1,12 @@
 # Pyth JS
 
-The Pyth JS repo provides utilities for reading price feeds from the [pyth.network](https://pyth.network/) oracle in JavaScript.
+The Pyth JS repo provides utilities for consuming price feeds from the [pyth.network](https://pyth.network/) oracle in JavaScript.
 
 Please see the [pyth.network documentation](https://docs.pyth.network/) for more information about pyth.network.
+
+## Usage
+
+The [pyth-terra-js](./pyth-terra-js/) package can be used to consume Pyth price feeds on the Terra network. Other networks are coming soon!
 
 ## Development
 
