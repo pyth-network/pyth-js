@@ -12,6 +12,4 @@ The [pyth-terra-js](./pyth-terra-js/) package can be used to consume Pyth price 
 
 ### pre-commit hooks
 
-pre-commit is a tool that checks and fixes simple issues (formatting, ...) before each commit. You can install it by following [their website](https://pre-commit.com/). In order to enable checks for this repo run `pre-commit install` from command-line in the root of this repo.
-
-The checks are also performed in the CI to ensure the code follows consistent formatting.
+We require the [pre-commit hooks](https://pre-commit.com/) defined in [`.pre-commit-config.yaml`](.pre-commit-config.yaml) to be ran on each PR before merging. To enable these to check and fix issues automatically in your local environment, install [pre-commit](https://pre-commit.com/) and run `pre-commit install` from the root of this repo.
