@@ -2,6 +2,9 @@
   "name": "@pythnetwork/pyth-common-js",
   "version": "0.1.0",
   "description": "Pyth Network Common Utils in JS",
+  "author": {
+    "name": "Pyth Data Association"
+  },
   "homepage": "https://pyth.network",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -10,7 +13,7 @@
   ],
   "repository": "https://github.com/pyth-network/pyth-js/pyth-common-js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "build": "tsc",
     "example": "npm run build && node lib/examples/PriceServiceClient.js",
     "format": "prettier --write \"src/**/*.ts\"",
