@@ -6,18 +6,21 @@ import { hideBin } from "yargs/helpers";
 import { TerraPriceServiceConnection, CONTRACT_ADDR } from "../index";
 
 const argv = yargs(hideBin(process.argv))
-  .option('network', {
-    description: "Network to relay on. Provide node url if you are using localterra",
+  .option("network", {
+    description:
+      "Network to relay on. Provide node url if you are using localterra",
     required: true,
-    default: 'testnet',
+    default: "testnet",
   })
   .option("http", {
-    description: "HTTP endpoint for the Price service. e.g: https://endpoint/example",
+    description:
+      "HTTP endpoint for the Price service. e.g: https://endpoint/example",
     type: "string",
     required: true,
   })
   .option("pyth-contract", {
-    description: "Pyth contract address. You should provide this value if you are using localterra",
+    description:
+      "Pyth contract address. You should provide this value if you are using localterra",
     type: "string",
     required: false,
   })
@@ -28,24 +31,24 @@ const argv = yargs(hideBin(process.argv))
     type: "array",
     required: true,
   })
-  .option('mnemonic', {
-    description: 'Mnemonic (private key) for sender',
-    type: 'string',
-    required: true
+  .option("mnemonic", {
+    description: "Mnemonic (private key) for sender",
+    type: "string",
+    required: true,
   })
   .help()
   .alias("help", "h")
   .parseSync();
 
-const CONFIG: Record<string, any>  = {
+const CONFIG: Record<string, any> = {
   testnet: {
     terraHost: {
       URL: "https://bombay-lcd.terra.dev",
       chainID: "bombay-12",
       name: "testnet",
     },
-  }
-}
+  },
+};
 
 export const TERRA_GAS_PRICES_URL = "https://fcd.terra.dev/v1/txs/gas_prices";
 
@@ -60,9 +63,11 @@ if (CONFIG[argv.network] !== undefined) {
     URL: argv.network,
     chainID: "localterra",
     name: "localterra",
-  }
+  };
   if (argv.pythContract === undefined) {
-    throw new Error("You should provide pyth contract address when using localterra");
+    throw new Error(
+      "You should provide pyth contract address when using localterra"
+    );
   }
   pythContractAddr = argv.pythContract;
 }
@@ -71,9 +76,11 @@ const feeDenoms = ["uluna"];
 
 const connection = new TerraPriceServiceConnection({ httpEndpoint: argv.http });
 const lcd = new LCDClient(terraHost);
-const wallet = lcd.wallet(new MnemonicKey({
-  mnemonic: argv.mnemonic
-}));
+const wallet = lcd.wallet(
+  new MnemonicKey({
+    mnemonic: argv.mnemonic,
+  })
+);
 const priceIds = argv.priceIds as string[];
 
 async function run() {
@@ -84,13 +91,19 @@ async function run() {
     .get(TERRA_GAS_PRICES_URL)
     .then((result) => result.data);
 
-  const msgs = await connection.getPythPriceUpdateMessages(priceIds, pythContractAddr, wallet.key.accAddress);
+  const msgs = await connection.getPythPriceUpdateMessages(
+    priceIds,
+    pythContractAddr,
+    wallet.key.accAddress
+  );
   console.log(msgs);
 
   const feeEstimate = await lcd.tx.estimateFee(
-    [{
-      sequenceNumber: await wallet.sequence(),
-    }],
+    [
+      {
+        sequenceNumber: await wallet.sequence(),
+      },
+    ],
     {
       msgs: msgs,
       feeDenoms,
