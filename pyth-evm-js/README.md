@@ -31,8 +31,8 @@ const connection = new EvmPriceServiceConnection({
 
 const priceIds = [
   // You can find the ids of prices at https://pyth.network/developers/price-feeds#binance-smart-chain-testnet
-  "f9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b", // BTC/USD price id in testnet
-  "ca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6", // ETH/USD price id in testnet
+  "0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b", // BTC/USD price id in testnet
+  "0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6", // ETH/USD price id in testnet
 ];
 
 // `getPythLatestPriceFeeds` returns a `PriceFeed` for each price id. It contains all information about a price and has
@@ -86,7 +86,7 @@ There are two examples in [examples](./src/examples/).
 [This example](./src/examples/EvmPriceServiceClient.ts) fetches a `PriceFeed` for each given price id and prints them. You can run it with `npm run example-client`. A full command that prints BTC and ETH Price Feeds, in the testnet network, looks like so:
 
 ```bash
-npm run example-client -- --http https://website/example --price-ids f9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b ca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6
+npm run example-client -- --http https://website/example --price-ids 0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6
 ```
 
 #### EvmRelay
@@ -100,7 +100,7 @@ npm run example-client -- --http https://website/example --price-ids f9c0172ba10
 You can run this example with `npm run example-relay`. A full command that updates BTC and ETH prices on the bsc testnet network looks like so:
 
 ```bash
-npm run example-relay -- --network binance_testnet --mnemonic "my good mnemonic" --http https://website/example --price-ids f9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b ca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6
+npm run example-relay -- --network binance_testnet --mnemonic "my good mnemonic" --http https://website/example --price-ids 0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6
 ```
 
 ## How Pyth Works in Evm
