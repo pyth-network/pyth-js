@@ -6,7 +6,7 @@ Please see the [pyth.network documentation](https://docs.pyth.network/) for more
 
 ## Usage
 
-- [pyth-evm-js](./pyth-evm-js/) package can be used to consume Pyth price feeds on the EVM-based networks.
+- The [pyth-evm-js](./pyth-evm-js/) package can be used to consume Pyth price feeds on EVM-based networks.
 - [pyth-terra-js](./pyth-terra-js/) package can be used to consume Pyth price feeds on the Terra network.
 
 ## Development
