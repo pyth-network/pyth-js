@@ -103,7 +103,7 @@ You can run this example with `npm run example-relay`. A full command that updat
 npm run example-relay -- --network binance_testnet --mnemonic "my good mnemonic" --http https://website/example --price-ids f9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b ca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6
 ```
 
-## How Pyth Works in Evm
+## How Pyth Works on EVM Chains
 
 Pyth prices are published on Solana, and relayed to EVM chains using the [Wormhole Network](https://wormholenetwork.com/) as a cross-chain message passing bridge. The Wormhole Network observes when Pyth prices on Solana have changed and publishes an off-chain signed message attesting to this fact. This is explained in more detail [here](https://docs.wormholenetwork.com/wormhole/).
 
