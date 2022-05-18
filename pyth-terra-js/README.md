@@ -26,7 +26,7 @@ Pyth prices before submitting them to Terra:
 
 ```typescript
 const connection = new TerraPriceServiceConnection({
-  httpEndpoint: "https://website/example",
+  httpEndpoint: "https://prices-testnet.pyth.network", // See Price Service Endpoints section below for other endpoints
 });
 
 const priceIds = [
@@ -79,7 +79,7 @@ npm run example-client -- --http https://website/example --price-ids f9c0172ba10
 You can run this example with `npm run example-relay`. A full command that updates BTC and LUNA prices on the testnet network looks like so:
 
 ```bash
-npm run example-relay -- --network testnet --mnemonic "my good mnemonic" --http https://website/example --price-ids f9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 6de025a4cf28124f8ea6cb8085f860096dbc36d9c40002e221fc449337e065b2
+npm run example-relay -- --network testnet --mnemonic "my good mnemonic" --http https://prices-testnet.pyth.network --price-ids f9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 6de025a4cf28124f8ea6cb8085f860096dbc36d9c40002e221fc449337e065b2
 ```
 
 ## How Pyth Works in Terra
@@ -91,3 +91,12 @@ This signed message can then be submitted to the Pyth contract on the Terra netw
 ### On-demand price updates
 
 Price updates are not submitted on the Terra network automatically: rather, when a consumer needs to use the value of a price they should first submit the latest Wormhole update for that price to Terra. This will make the most recent price update available on-chain for Terra contracts to use.
+
+## Price Service Endpoints
+
+Price Service is available in mainnet and testnet networks. So any mainnet network is connected to the mainnet instance of Price Service. The same holds for testnet networks.
+
+| network | url                                 |
+| ------- | ----------------------------------- |
+| mainnet | https://prices-mainnet.pyth.network |
+| testnet | https://prices-testnet.pyth.network |
