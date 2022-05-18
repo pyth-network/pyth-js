@@ -94,7 +94,7 @@ Price updates are not submitted on the Terra network automatically: rather, when
 
 ## Price Service Endpoints
 
-Price Service is available in mainnet and testnet networks. So any mainnet network is connected to the mainnet instance of Price Service. The same holds for testnet networks.
+Public endpoints for the Price Service are provided for both mainnet and testnet. These can be used regardless of which network you deploy your own contracts to as long as it is a Pyth supported network. For example, you can use the testnet Price Service whether you are deploying your contract to the BNB or Polygon testnet.
 
 | network | url                                 |
 | ------- | ----------------------------------- |
