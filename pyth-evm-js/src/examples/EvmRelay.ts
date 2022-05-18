@@ -26,8 +26,8 @@ const argv = yargs(hideBin(process.argv))
   })
   .option("price-ids", {
     description:
-      "Space separated Price Feed Ids (in hex without leading 0x) to fetch." +
-      " e.g: f9c0172ba10dfa4d19088d...",
+      "Space separated Price Feed Ids (in hex) to fetch" +
+      " e.g: 0xf9c0172ba10dfa4d19088d...",
     type: "array",
     required: true,
   })
@@ -41,7 +41,7 @@ const argv = yargs(hideBin(process.argv))
   .parseSync();
 
 const CONFIG: Record<string, any> = {
-  bsc_testnet: {
+  bnb_testnet: {
     network: "https://data-seed-prebsc-1-s1.binance.org:8545",
   },
 };

@@ -1,6 +1,6 @@
 # Pyth EVM JS
 
-[Pyth](https://pyth.network/) provides real-time pricing data in a variety of asset classes, including cryptocurrency, equities, FX and commodities. This library allows you to use these real-time prices in EVM-based DeFi protocols.
+[Pyth](https://pyth.network/) provides real-time pricing data in a variety of asset classes, including cryptocurrency, equities, FX and commodities. This library allows you to use these real-time prices on EVM-based networks.
 
 ## Installation
 
@@ -20,9 +20,9 @@ $ yarn add @pythnetwork/pyth-evm-js
 
 Pyth stores prices off-chain to minimize gas fees, which allows us to offer a wider selection of products and faster update times.
 See [How Pyth Works in EVM](#how-pyth-works-in-evm) for more details about this approach. In order to use Pyth prices on chain,
-they must be fetched from an off-chain price service. The EvmPriceServiceConnection class can be used to interact with these services,
-providing a way to fetch these prices directly in your code. The following example wraps an existing RPC provider and shows how to consume
-Pyth prices before submitting them to the network:
+they must be fetched from an off-chain price service. The `EvmPriceServiceConnection` class can be used to interact with these services,
+providing a way to fetch these prices directly in your code. The following example wraps an existing RPC provider and shows how to obtain
+Pyth prices and submit them to the network:
 
 ```typescript
 const connection = new EvmPriceServiceConnection({
@@ -94,13 +94,13 @@ npm run example-client -- --http https://website/example --price-ids 0xf9c0172ba
 [This example](./src/examples/EvmRelay.ts) shows how to update prices on an EVM network. It does the following:
 
 1. Gets update data to update given price feeds.
-2. Calls pyth contract with the update data.
-3. Submits it to the network and will print the txhash if successful.
+2. Calls the pyth contract with the update data.
+3. Submits it to the network and prints the txhash if successful.
 
-You can run this example with `npm run example-relay`. A full command that updates BTC and ETH prices on the bsc testnet network looks like so:
+You can run this example with `npm run example-relay`. A full command that updates BTC and ETH prices on the BNB Chain testnet network looks like so:
 
 ```bash
-npm run example-relay -- --network binance_testnet --mnemonic "my good mnemonic" --http https://website/example --price-ids 0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6
+npm run example-relay -- --network bnb_testnet --mnemonic "my good mnemonic" --http https://website/example --price-ids 0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6
 ```
 
 ## How Pyth Works on EVM Chains

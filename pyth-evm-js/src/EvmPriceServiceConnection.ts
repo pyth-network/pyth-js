@@ -7,7 +7,8 @@ export class EvmPriceServiceConnection extends PriceServiceConnection {
    *
    * @param priceIds Array of hex-encoded price ids.
    * @returns Array of price update data.
-   */ async getPriceFeedsUpdateData(priceIds: HexString[]): Promise<string[]> {
+   */
+  async getPriceFeedsUpdateData(priceIds: HexString[]): Promise<string[]> {
     const latestVaas = await this.getLatestVaas(priceIds);
     return latestVaas.map(
       (vaa) => "0x" + Buffer.from(vaa, "base64").toString("hex")
