@@ -1,6 +1,6 @@
 {
   "name": "@pythnetwork/pyth-terra-js",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Pyth Network Terra Utils in JS",
   "homepage": "https://pyth.network",
   "author": {
@@ -11,7 +11,7 @@
   "files": [
     "lib/**/*"
   ],
-  "repository": "https://github.com/pyth-network/pyth-js/pyth-common-js",
+  "repository": "https://github.com/pyth-network/pyth-js/pyth-terra-js",
   "scripts": {
     "test": "jest --passWithNoTests",
     "build": "tsc",

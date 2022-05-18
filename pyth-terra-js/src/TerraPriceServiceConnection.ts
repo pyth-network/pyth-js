@@ -22,7 +22,7 @@ export class TerraPriceServiceConnection extends PriceServiceConnection {
    * @param senderAddr: Sender address of the created messages. Sender should sign and pay the transaction that contains them.
    * @returns Array of Terra messages that can be included in a transaction to update the given prices.
    */
-  async getPythPriceUpdateMessages(
+  async getPriceUpdateMessages(
     priceIds: HexString[],
     pythContractAddr: string,
     senderAddr: string

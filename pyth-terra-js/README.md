@@ -35,16 +35,16 @@ const priceIds = [
   "6de025a4cf28124f8ea6cb8085f860096dbc36d9c40002e221fc449337e065b2", // LUNA/USD price id in testnet
 ];
 
-// `getPythLatestPriceFeeds` returns a `PriceFeed` for each price id. It contains all information about a price and has
+// `getLatestPriceFeeds` returns a `PriceFeed` for each price id. It contains all information about a price and has
 // utility functions to get the current and exponentially-weighted moving average price, and other functionality.
-const priceFeeds = connection.getPythLatestPriceFeeds(priceIds);
+const priceFeeds = connection.getLatestPriceFeeds(priceIds);
 console.log(priceFeeds[0].getCurrentPrice()); // Price { conf: '1234', expo: -8, price: '12345678' }
 console.log(priceFeeds[1].getEmaPrice()); // Exponentially-weighted moving average price
 
 // In order to use Pyth prices in your protocol you need to submit the latest price to the Terra network alongside your
-// own transactions. `getPythPriceUpdateMessages` creates messages that can update the prices.
+// own transactions. `getPriceUpdateMessages` creates messages that can update the prices.
 const pythContractAddr = CONTRACT_ADDR["testnet"];
-const msgs = await connection.getPythPriceUpdateMessages(
+const msgs = await connection.getPriceUpdateMessages(
   priceIds,
   pythContractAddr,
   wallet.key.accAddress
