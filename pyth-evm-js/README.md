@@ -100,7 +100,7 @@ npm run example-client -- --http https://prices-testnet.pyth.network --price-ids
 You can run this example with `npm run example-relay`. A full command that updates BTC and ETH prices on the BNB Chain testnet network looks like so:
 
 ```bash
-npm run example-relay -- --network bnb_testnet --mnemonic "my good mnemonic" --http https://website/example --price-ids 0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6
+npm run example-relay -- --network bnb_testnet --mnemonic "my good mnemonic" --http https://prices-testnet.pyth.network --price-ids 0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6
 ```
 
 ## How Pyth Works on EVM Chains

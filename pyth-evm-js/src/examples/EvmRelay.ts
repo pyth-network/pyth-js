@@ -8,7 +8,8 @@ import HDWalletProvider from "@truffle/hdwallet-provider";
 const argv = yargs(hideBin(process.argv))
   .option("network", {
     description:
-      "Network to relay on. Provide node url if you are using anything other than [bsc_testnet]",
+      "Network to relay on. Provide node url if you are using anything other than " +
+      "[bnb_testnet, fuji, fantom_testnet, ropsten, goerli, mumbai]",
     required: true,
     default: "bsc_testnet",
   })
@@ -43,6 +44,21 @@ const argv = yargs(hideBin(process.argv))
 const CONFIG: Record<string, any> = {
   bnb_testnet: {
     network: "https://data-seed-prebsc-1-s1.binance.org:8545",
+  },
+  fuji: {
+    network: "https://api.avax-test.network/ext/bc/C/rpc",
+  },
+  fantom_testnet: {
+    network: "https://rpc.testnet.fantom.network/",
+  },
+  ropsten: {
+    network: "https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+  },
+  goerli: {
+    network: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+  },
+  mumbai: {
+    network: "https://matic-mumbai.chainstacklabs.com",
   },
 };
 
