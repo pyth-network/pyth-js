@@ -1,7 +1,7 @@
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
-import { CONTRACT_ADDR, EvmPriceServiceConnection } from "../index";
+import { EvmPriceServiceConnection } from "../index";
 
 const argv = yargs(hideBin(process.argv))
   .option("http", {
