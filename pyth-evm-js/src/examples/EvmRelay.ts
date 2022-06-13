@@ -97,7 +97,7 @@ const pythRelayAbi = [
 const connection = new EvmPriceServiceConnection({ httpEndpoint: argv.http });
 
 async function run() {
-  let provider = new HDWalletProvider({
+  const provider = new HDWalletProvider({
     mnemonic: {
       phrase: argv.mnemonic,
     },
