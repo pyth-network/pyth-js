@@ -73,8 +73,8 @@ export class PriceServiceConnection {
     this.wsIsAlive = false;
     this.logger = config.logger;
     this.wsFailedAttempts = 0;
-    this.onWsError = (err: Error) => {
-      throw err;
+    this.onWsError = (error: Error) => {
+      this.logger?.error(error);
     };
     this.wsClosed = true;
   }
