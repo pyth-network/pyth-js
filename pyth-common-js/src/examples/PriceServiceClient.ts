@@ -3,12 +3,22 @@ import { hideBin } from "yargs/helpers";
 
 import { PriceServiceConnection } from "../index";
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 const argv = yargs(hideBin(process.argv))
   .option("http", {
     description:
       "HTTP endpoint for the Price service. e.g: https://endpoint/example",
     type: "string",
     required: true,
+  })
+  .option("wss", {
+    description:
+      "Web Socket endpoint for the Price service. e.g: wss://endpoint/example",
+    type: "string",
+    required: false,
   })
   .option("price-ids", {
     description:
@@ -22,12 +32,40 @@ const argv = yargs(hideBin(process.argv))
   .parseSync();
 
 async function run() {
-  const connection = new PriceServiceConnection({ httpEndpoint: argv.http });
-  const priceFeeds = await connection.getLatestPriceFeeds(
-    argv.priceIds as string[]
-  );
+  const connection = new PriceServiceConnection({
+    httpEndpoint: argv.http,
+    wsEndpoint: argv.wss,
+    logger: console,
+  });
+
+  connection.onWsError = (error) => {
+    console.log("Error:");
+    console.log(error);
+  };
+
+  const priceIds = argv.priceIds as string[];
+  const priceFeeds = await connection.getLatestPriceFeeds(priceIds);
   console.log(priceFeeds);
   console.log(priceFeeds?.at(0)?.getCurrentPrice());
+
+  if (argv.wss !== undefined) {
+    console.log("Subscribing to Price Feed updates");
+
+    await connection.subscribePriceFeedUpdate(priceIds, (priceFeed) => {
+      console.log(
+        `Current price for ${priceFeed.id}: ${JSON.stringify(
+          priceFeed.getCurrentPrice()
+        )}`
+      );
+    });
+
+    await sleep(600000);
+
+    console.log("Unsubscribing Price Feed updates");
+    await connection.unsubscribePriceFeedUpdate(priceIds);
+
+    connection.closeWebSocket();
+  }
 }
 
 run();
