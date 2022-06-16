@@ -9,9 +9,9 @@ export class ResilientWebSocket {
   private pingTimeout: undefined | NodeJS.Timeout;
   private logger: undefined | Logger;
 
-  onError: (error: Error) => any;
+  onError: (error: Error) => void;
   onMessage: (data: WebSocket.Data) => void;
-  onReconnect: () => any;
+  onReconnect: () => void;
 
   constructor(endpoint: string, logger?: Logger) {
     this.endpoint = endpoint;

@@ -43,7 +43,7 @@ type ServerPriceUpdate = {
 
 type ServerMessage = ServerResponse | ServerPriceUpdate;
 
-export type PriceFeedUpdateCallback = (priceFeed: PriceFeed) => any;
+export type PriceFeedUpdateCallback = (priceFeed: PriceFeed) => void;
 
 export class PriceServiceConnection {
   private httpClient: AxiosInstance;
@@ -57,7 +57,7 @@ export class PriceServiceConnection {
    *
    * Default handler only logs the errors.
    */
-  onWsError: (error: Error) => any;
+  onWsError: (error: Error) => void;
 
   private logger: undefined | Logger;
 
