@@ -44,13 +44,13 @@ async function run() {
   console.log(priceFeeds?.at(0)?.getCurrentPrice());
 
   if (argv.ws !== undefined) {
-    console.log("Subscribing to Price Feed updates");
+    console.log("Subscribing to price feed updates.");
 
     await connection.subscribePriceFeedUpdate(priceIds, (priceFeed) => {
       console.log(
         `Current price for ${priceFeed.id}: ${JSON.stringify(
           priceFeed.getCurrentPrice()
-        )}`
+        )}.`
       );
     });
 
@@ -59,7 +59,7 @@ async function run() {
     // To close the websocket you should either unsubscribe from all updates
     // or call stopWebSocket directly.
 
-    console.log("Unsubscribing Price Feed updates");
+    console.log("Unsubscribing from price feed updates.");
     await connection.unsubscribePriceFeedUpdate(priceIds);
 
     // await connection.stopWebSocket();

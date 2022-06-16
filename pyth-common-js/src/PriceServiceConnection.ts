@@ -198,7 +198,7 @@ export class PriceServiceConnection {
 
   async startWebSocket() {
     if (this.wsEndpoint === undefined) {
-      throw new Error("WS Endpoint is undefined.");
+      throw new Error("Websocket endpoint is undefined.");
     }
 
     this.wsClient = new ResilientWebSocket(this.wsEndpoint, this.logger);
@@ -212,7 +212,7 @@ export class PriceServiceConnection {
           type: "subscribe",
         };
 
-        this.logger?.info("Subscribing existing price feeds");
+        this.logger?.info("Resubscribing to existing price feeds.");
         this.wsClient?.send(JSON.stringify(message));
       }
     };
@@ -233,7 +233,9 @@ export class PriceServiceConnection {
 
       if (message.type === "response") {
         if (message.status === "error") {
-          this.logger?.error(`Error Response from WS server`);
+          this.logger?.error(
+            `Error Response from the websocket server ${message.error}.`
+          );
           this.onWsError(new Error(message.error));
         }
       } else if (message.type === "price_update") {
@@ -242,25 +244,21 @@ export class PriceServiceConnection {
           priceFeed = PriceFeed.fromJson(message.price_feed);
         } catch (e: any) {
           this.logger?.error(
-            `Error parsing Price Feeds from message ${data.toString()}`
+            `Error parsing price feeds from message ${data.toString()}.`
           );
           this.logger?.error(e);
           this.onWsError(e);
           return;
         }
 
-        if (!this.priceFeedCallbacks.has(priceFeed.id)) {
-          this.logger?.info(
-            `No callback for price id ${priceFeed.id}. It should only happen in a race condition`
-          );
-        } else {
+        if (this.priceFeedCallbacks.has(priceFeed.id)) {
           for (const cb of this.priceFeedCallbacks.get(priceFeed.id)!) {
             cb(priceFeed);
           }
         }
       } else {
         this.logger?.warn(
-          `Received unsupported message ${data.toString()}. Ignoring it`
+          `Ignoring unsupported server response ${data.toString()}.`
         );
       }
     };

@@ -1,6 +1,8 @@
 import * as WebSocket from "isomorphic-ws";
 import { Logger } from "ts-log";
 
+const PING_TIMEOUT_DURATION = 30000 + 3000; // It is 30s on the server and 3s is added for delays
+
 export class ResilientWebSocket {
   private endpoint: string;
   private wsClient: undefined | WebSocket;
@@ -33,7 +35,7 @@ export class ResilientWebSocket {
 
     if (this.wsClient === undefined) {
       this.logger?.error(
-        "Couldn't connect to websocket. Error callback is called."
+        "Couldn't connect to the websocket server. Error callback is called."
       );
     } else {
       this.wsClient?.send(data);
@@ -77,7 +79,7 @@ export class ResilientWebSocket {
         const waitTime = expoBackoff(this.wsFailedAttempts);
 
         this.logger?.error(
-          `Connection closed unexpected or because of timeout. Reconnecting after ${waitTime}ms.`
+          `Connection closed unexpectedly or because of timeout. Reconnecting after ${waitTime}ms.`
         );
 
         await sleep(waitTime);
@@ -107,10 +109,10 @@ export class ResilientWebSocket {
 
     this.pingTimeout = setTimeout(() => {
       console.log(this);
-      this.logger?.warn(`Websocket timed out. Restarting websocket.`);
+      this.logger?.warn(`Websocket connection timed out. Reconnecting...`);
       this.wsClient?.terminate();
       this.restartUnexpectedClosedWebsocket();
-    }, 30000 + 3000); // Assumes server pings every 30 seconds.
+    }, PING_TIMEOUT_DURATION);
   }
 
   private async waitForMaybeReadyWebSocket() {
