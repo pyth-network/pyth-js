@@ -33,7 +33,7 @@ export class ResilientWebSocket {
 
     if (this.wsClient === undefined) {
       this.logger?.error(
-        "Couldn't connect to websocket. Error callback is called. If websocket reconnects then it will be applied"
+        "Couldn't connect to websocket. Error callback is called."
       );
     } else {
       this.wsClient?.send(data);
@@ -80,6 +80,11 @@ export class ResilientWebSocket {
     });
   }
 
+  /**
+   * This approach only works when server constantly pings the clients.
+   * Otherwise you might consider sending ping and acting on pong responses
+   * yourself.
+   */
   private heartbeat() {
     this.logger?.info("Heartbeat");
 

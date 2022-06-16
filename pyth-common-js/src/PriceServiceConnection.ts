@@ -55,7 +55,7 @@ export class PriceServiceConnection {
   /**
    * Custom handler for web socket errors (connection and message parsing).
    *
-   * Default handler only logs the error and passes.
+   * Default handler only logs the errors.
    */
   onWsError: (error: Error) => any;
 
