@@ -3,6 +3,7 @@ import axios, { AxiosInstance } from "axios";
 import axiosRetry from "axios-retry";
 import * as WebSocket from "isomorphic-ws";
 import { Logger } from "ts-log";
+import { ResilientWebSocket } from "./ResillientWebSocket";
 
 export type DurationInMs = number;
 
@@ -47,12 +48,9 @@ export type PriceFeedUpdateCallback = (priceFeed: PriceFeed) => any;
 export class PriceServiceConnection {
   private httpClient: AxiosInstance;
 
-  private wsEndpoint: undefined | string;
-  private wsClient: undefined | WebSocket;
-  private wsUserClosed: boolean;
   private priceFeedCallbacks: Map<HexString, Set<PriceFeedUpdateCallback>>;
-  private wsFailedAttempts: number;
-  private pingTimeout: any; // Node and browser have different implementations
+  private wsClient: undefined | ResilientWebSocket;
+  private wsEndpoint: undefined | string;
 
   /**
    * Custom handler for web socket errors (connection and message parsing).
@@ -73,14 +71,13 @@ export class PriceServiceConnection {
       retryDelay: axiosRetry.exponentialDelay,
     });
 
-    this.wsEndpoint = config.wsEndpoint;
     this.priceFeedCallbacks = new Map();
     this.logger = config.logger;
-    this.wsFailedAttempts = 0;
     this.onWsError = (error: Error) => {
       this.logger?.error(error);
     };
-    this.wsUserClosed = true;
+
+    this.wsEndpoint = config.wsEndpoint;
   }
 
   /**
@@ -128,28 +125,95 @@ export class PriceServiceConnection {
     return response.data;
   }
 
-  private async createWebSocket() {
+  async subscribePriceFeedUpdate(
+    priceIds: HexString[],
+    cb: PriceFeedUpdateCallback
+  ) {
+    if (this.wsClient === undefined) {
+      throw new Error("WS is not started.");
+    }
+
+    let newPriceIds: HexString[] = [];
+
+    for (let id of priceIds) {
+      if (!this.priceFeedCallbacks.has(id)) {
+        this.priceFeedCallbacks.set(id, new Set());
+        newPriceIds.push(id);
+      }
+
+      this.priceFeedCallbacks.get(id)!.add(cb);
+    }
+
+    const message: ClientMessage = {
+      ids: newPriceIds,
+      type: "subscribe",
+    };
+
+    await this.wsClient?.send(JSON.stringify(message));
+  }
+
+  async unsubscribePriceFeedUpdate(
+    priceIds: HexString[],
+    cb?: PriceFeedUpdateCallback
+  ) {
+    if (this.wsClient === undefined) {
+      throw new Error("WS is not started.");
+    }
+
+    let removedPriceIds: HexString[] = [];
+
+    for (let id of priceIds) {
+      if (this.priceFeedCallbacks.has(id)) {
+        let idRemoved = false;
+
+        if (cb === undefined) {
+          this.priceFeedCallbacks.delete(id);
+          idRemoved = true;
+        } else {
+          this.priceFeedCallbacks.get(id)!.delete(cb);
+
+          if (this.priceFeedCallbacks.get(id)!.size === 0) {
+            this.priceFeedCallbacks.delete(id);
+            idRemoved = true;
+          }
+        }
+
+        if (idRemoved) {
+          removedPriceIds.push(id);
+        }
+      }
+    }
+
+    const message: ClientMessage = {
+      ids: removedPriceIds,
+      type: "unsubscribe",
+    };
+
+    this.wsClient?.send(JSON.stringify(message));
+  }
+
+  async startWebSocket() {
     if (this.wsEndpoint === undefined) {
-      throw new Error("undefined wsEndpoint.");
+      throw new Error("WS Endpoint is undefined.");
     }
 
-    if (this.wsClient !== undefined) {
-      return;
-    }
+    this.wsClient = new ResilientWebSocket(this.wsEndpoint, this.logger);
 
-    this.logger?.info(`Creating Web Socket client`);
+    this.wsClient.onWsError = this.onWsError;
 
-    this.wsClient = new WebSocket(this.wsEndpoint!);
-    this.wsUserClosed = false;
+    this.wsClient.onReconnect = () => {
+      if (this.priceFeedCallbacks.size > 0) {
+        const message: ClientMessage = {
+          ids: Array.from(this.priceFeedCallbacks.keys()),
+          type: "subscribe",
+        };
 
-    this.wsClient.on("open", () => {
-      this.wsFailedAttempts = 0;
-      this.heartbeat();
-    });
+        this.logger?.info("Subscribing existing price feeds");
+        this.wsClient?.send(JSON.stringify(message));
+      }
+    };
 
-    this.wsClient.on("error", this.onWsError);
-
-    this.wsClient.on("message", (data: WebSocket.RawData) => {
+    this.wsClient.onMessage = (data: WebSocket.RawData) => {
       this.logger?.info(`Received message ${data.toString()}`);
 
       let message: ServerMessage;
@@ -195,174 +259,17 @@ export class PriceServiceConnection {
           `Received unsupported message ${data.toString()}. Ignoring it`
         );
       }
-    });
-
-    this.wsClient.on("ping", this.heartbeat.bind(this));
-
-    this.wsClient.on("close", async () => {
-      clearInterval(this.pingTimeout);
-      if (this.wsUserClosed === false) {
-        this.wsFailedAttempts += 1;
-        this.wsClient = undefined;
-        const waitTime = expoBackoff(this.wsFailedAttempts);
-
-        this.logger?.error(
-          `Connection closed unexpected or because of timeout. Reconnecting after ${waitTime}ms.`
-        );
-
-        await sleep(waitTime);
-        this.restartUnexpectedClosedWebsocket();
-      } else {
-        this.logger?.info("Connection closed");
-      }
-    });
-  }
-
-  private heartbeat() {
-    this.logger?.info("Heartbeat");
-
-    clearTimeout(this.pingTimeout);
-
-    this.pingTimeout = setTimeout(() => {
-      console.log(this);
-      this.logger?.warn(`Websocket timed out. Restarting websocket.`);
-      this.wsClient?.terminate();
-      this.restartUnexpectedClosedWebsocket();
-    }, 30000 + 3000);
-  }
-
-  private async waitForMaybeReadyWebSocket(): Promise<boolean> {
-    if (this.wsClient === undefined) {
-      await this.createWebSocket();
-    }
-
-    while (
-      this.wsClient !== undefined &&
-      this.wsClient.readyState !== this.wsClient.OPEN
-    ) {
-      await sleep(10);
-    }
-
-    if (this.wsClient !== undefined) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  private async restartUnexpectedClosedWebsocket() {
-    if (this.wsUserClosed === true) {
-      return;
-    }
-
-    await this.waitForMaybeReadyWebSocket();
-
-    if (this.wsClient === undefined) {
-      this.logger?.error(
-        "Couldn't reconnect to websocket. Error callback is called."
-      );
-      return;
-    }
-
-    const message: ClientMessage = {
-      ids: Array.from(this.priceFeedCallbacks.keys()),
-      type: "subscribe",
     };
 
-    this.logger?.info("Subscribing existing price feeds");
-    this.wsClient.send(JSON.stringify(message));
+    await this.wsClient.startWebSocket();
   }
 
-  async subscribePriceFeedUpdate(
-    priceIds: HexString[],
-    cb: PriceFeedUpdateCallback
-  ) {
-    await this.waitForMaybeReadyWebSocket();
-
-    let newPriceIds: HexString[] = [];
-
-    for (let id of priceIds) {
-      if (!this.priceFeedCallbacks.has(id)) {
-        this.priceFeedCallbacks.set(id, new Set());
-        newPriceIds.push(id);
-      }
-
-      this.priceFeedCallbacks.get(id)!.add(cb);
-    }
-
-    const message: ClientMessage = {
-      ids: newPriceIds,
-      type: "subscribe",
-    };
-
+  stopWebSocket() {
     if (this.wsClient === undefined) {
-      this.logger?.error(
-        "Couldn't connect to websocket. Error callback is called. If websocket reconnects then it will be applied"
-      );
-    } else {
-      this.wsClient?.send(JSON.stringify(message));
+      throw new Error("WS Endpoint is not given hence Websocket is disabled.");
     }
-  }
-
-  async unsubscribePriceFeedUpdate(
-    priceIds: HexString[],
-    cb?: PriceFeedUpdateCallback
-  ) {
-    await this.waitForMaybeReadyWebSocket();
-
-    let removedPriceIds: HexString[] = [];
-
-    for (let id of priceIds) {
-      if (this.priceFeedCallbacks.has(id)) {
-        let idRemoved = false;
-
-        if (cb === undefined) {
-          this.priceFeedCallbacks.delete(id);
-          idRemoved = true;
-        } else {
-          this.priceFeedCallbacks.get(id)!.delete(cb);
-
-          if (this.priceFeedCallbacks.get(id)!.size === 0) {
-            this.priceFeedCallbacks.delete(id);
-            idRemoved = true;
-          }
-        }
-
-        if (idRemoved) {
-          removedPriceIds.push(id);
-        }
-      }
-    }
-
-    const message: ClientMessage = {
-      ids: removedPriceIds,
-      type: "unsubscribe",
-    };
-
-    if (this.wsClient === undefined) {
-      this.logger?.error(
-        "Couldn't connect to websocket. Error callback is called. If websocket reconnects then it will be applied"
-      );
-    } else {
-      this.wsClient?.send(JSON.stringify(message));
-    }
-  }
-
-  closeWebSocket() {
-    if (this.wsClient !== undefined) {
-      const client = this.wsClient;
-      this.wsClient = undefined;
-      client.close();
-    }
-    this.wsUserClosed = true;
+    this.wsClient?.closeWebSocket();
+    this.wsClient = undefined;
     this.priceFeedCallbacks.clear();
   }
-}
-
-async function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function expoBackoff(attempts: number): number {
-  return 2 ** attempts * 100;
 }
