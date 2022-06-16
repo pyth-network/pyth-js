@@ -9,7 +9,7 @@ export class ResilientWebSocket {
   private pingTimeout: any; // Node and browser have different implementations
   private logger: undefined | Logger;
 
-  onWsError: (error: Error) => any;
+  onError: (error: Error) => any;
   onMessage: (data: WebSocket.RawData, isBinary: boolean) => void;
   onReconnect: () => any;
 
@@ -18,7 +18,7 @@ export class ResilientWebSocket {
     this.logger = logger;
 
     this.wsFailedAttempts = 0;
-    this.onWsError = (error: Error) => {
+    this.onError = (error: Error) => {
       this.logger?.error(error);
     };
     this.wsUserClosed = true;
@@ -55,7 +55,7 @@ export class ResilientWebSocket {
       this.heartbeat();
     });
 
-    this.wsClient.on("error", this.onWsError);
+    this.wsClient.on("error", this.onError);
 
     this.wsClient.on("message", this.onMessage);
 

@@ -199,7 +199,7 @@ export class PriceServiceConnection {
 
     this.wsClient = new ResilientWebSocket(this.wsEndpoint, this.logger);
 
-    this.wsClient.onWsError = this.onWsError;
+    this.wsClient.onError = this.onWsError;
 
     this.wsClient.onReconnect = () => {
       if (this.priceFeedCallbacks.size > 0) {
