@@ -20,6 +20,7 @@ export type PriceServiceConnectionConfig = {
    * it will timeout regardless of the retries at the configured `timeout` time.
    */
   httpRetries?: number;
+  /* Optional logger (e.g: console or any logging library) to log internal events */
   logger?: Logger;
 };
 
@@ -48,12 +49,16 @@ export class PriceServiceConnection {
 
   private wsEndpoint: undefined | string;
   private wsClient: undefined | WebSocket;
-  private wsClosed: boolean;
+  private wsUserClosed: boolean;
   private priceFeedCallbacks: Map<HexString, Set<PriceFeedUpdateCallback>>;
-  private wsIsAlive: boolean;
   private wsFailedAttempts: number;
+  private pingTimeout: any; // Node and browser have different implementations
 
-  // FIXME: document
+  /**
+   * Custom handler for web socket errors (connection and message parsing).
+   *
+   * Default handler only logs the error and passes.
+   */
   onWsError: (error: Error) => any;
 
   private logger: undefined | Logger;
@@ -70,13 +75,12 @@ export class PriceServiceConnection {
 
     this.wsEndpoint = config.wsEndpoint;
     this.priceFeedCallbacks = new Map();
-    this.wsIsAlive = false;
     this.logger = config.logger;
     this.wsFailedAttempts = 0;
     this.onWsError = (error: Error) => {
       this.logger?.error(error);
     };
-    this.wsClosed = true;
+    this.wsUserClosed = true;
   }
 
   /**
@@ -136,11 +140,11 @@ export class PriceServiceConnection {
     this.logger?.info(`Creating Web Socket client`);
 
     this.wsClient = new WebSocket(this.wsEndpoint!);
-    this.wsIsAlive = true;
-    this.wsClosed = false;
+    this.wsUserClosed = false;
 
     this.wsClient.on("open", () => {
       this.wsFailedAttempts = 0;
+      this.heartbeat();
     });
 
     this.wsClient.on("error", this.onWsError);
@@ -159,8 +163,11 @@ export class PriceServiceConnection {
         return;
       }
 
-      if (message.type === "response" && message.status === "error") {
-        this.logger?.error(`Error Response from WS server`);
+      if (message.type === "response") {
+        if (message.status === "error") {
+          this.logger?.error(`Error Response from WS server`);
+          this.onWsError(new Error(message.error));
+        }
       } else if (message.type === "price_update") {
         let priceFeed;
         try {
@@ -190,42 +197,41 @@ export class PriceServiceConnection {
       }
     });
 
-    this.wsClient.on("pong", (_data) => {
-      this.logger?.info("Websocket Pong");
-      this.wsIsAlive = true;
-    });
-
-    const pingInterval = setInterval(() => {
-      if (this.wsIsAlive === false) {
-        this.logger?.warn(`Websocket timed out. Restarting websocket.`);
-
-        this.wsClient?.close();
-        return;
-      }
-
-      this.logger?.info("Websocket Ping");
-
-      this.wsIsAlive = false;
-      this.wsClient?.ping();
-    }, 30000);
+    this.wsClient.on("ping", this.heartbeat.bind(this));
 
     this.wsClient.on("close", async () => {
-      clearInterval(pingInterval);
-      if (this.wsClosed === false) {
-        this.logger?.error(
-          `Connection closed unexpected or because of timeout. Reconnecting.`
-        );
+      clearInterval(this.pingTimeout);
+      if (this.wsUserClosed === false) {
         this.wsFailedAttempts += 1;
         this.wsClient = undefined;
-        await waitExpoBackoff(this.wsFailedAttempts);
-        this.restartClosedWebsocket();
+        const waitTime = expoBackoff(this.wsFailedAttempts);
+
+        this.logger?.error(
+          `Connection closed unexpected or because of timeout. Reconnecting after ${waitTime}ms.`
+        );
+
+        await sleep(waitTime);
+        this.restartUnexpectedClosedWebsocket();
       } else {
         this.logger?.info("Connection closed");
       }
     });
   }
 
-  async waitForMaybeReadyWebSocket(): Promise<boolean> {
+  private heartbeat() {
+    this.logger?.info("Heartbeat");
+
+    clearTimeout(this.pingTimeout);
+
+    this.pingTimeout = setTimeout(() => {
+      console.log(this);
+      this.logger?.warn(`Websocket timed out. Restarting websocket.`);
+      this.wsClient?.terminate();
+      this.restartUnexpectedClosedWebsocket();
+    }, 30000 + 3000);
+  }
+
+  private async waitForMaybeReadyWebSocket(): Promise<boolean> {
     if (this.wsClient === undefined) {
       await this.createWebSocket();
     }
@@ -244,10 +250,11 @@ export class PriceServiceConnection {
     }
   }
 
-  private async restartClosedWebsocket() {
-    if (this.wsClosed === true) {
+  private async restartUnexpectedClosedWebsocket() {
+    if (this.wsUserClosed === true) {
       return;
     }
+
     await this.waitForMaybeReadyWebSocket();
 
     if (this.wsClient === undefined) {
@@ -347,7 +354,7 @@ export class PriceServiceConnection {
       this.wsClient = undefined;
       client.close();
     }
-    this.wsClosed = true;
+    this.wsUserClosed = true;
     this.priceFeedCallbacks.clear();
   }
 }
@@ -356,6 +363,6 @@ async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function waitExpoBackoff(attempts: number) {
-  await sleep(2 ** attempts * 100);
+function expoBackoff(attempts: number): number {
+  return 2 ** attempts * 100;
 }

@@ -38,11 +38,6 @@ async function run() {
     logger: console,
   });
 
-  connection.onWsError = (error) => {
-    console.log("Error:");
-    console.log(error);
-  };
-
   const priceIds = argv.priceIds as string[];
   const priceFeeds = await connection.getLatestPriceFeeds(priceIds);
   console.log(priceFeeds);
