@@ -52,7 +52,10 @@ export class ResilientWebSocket {
 
     this.wsClient.onopen = (_event) => {
       this.wsFailedAttempts = 0;
-      this.heartbeat();
+      // Ping handler is undefined in browser side so heartbeat is disabled.
+      if (this.wsClient!.on !== undefined) {
+        this.heartbeat();
+      }
     };
 
     this.wsClient.onerror = (event) => {
@@ -85,7 +88,8 @@ export class ResilientWebSocket {
     };
 
     if (this.wsClient.on !== undefined) {
-      this.wsClient.on("ping", this.heartbeat.bind(this)); // Ping handler is undefined in browserside
+      // Ping handler is undefined in browser side
+      this.wsClient.on("ping", this.heartbeat.bind(this));
     }
   }
 
@@ -110,14 +114,20 @@ export class ResilientWebSocket {
   }
 
   private async waitForMaybeReadyWebSocket() {
+    let waitedTime = 0;
     while (
       this.wsClient !== undefined &&
       this.wsClient.readyState !== this.wsClient.OPEN
     ) {
-      await sleep(10);
+      if (waitedTime > 1000) {
+        this.wsClient.close();
+        return;
+      } else {
+        waitedTime += 10;
+        await sleep(10);
+      }
     }
   }
-
   private async restartUnexpectedClosedWebsocket() {
     if (this.wsUserClosed === true) {
       return;
