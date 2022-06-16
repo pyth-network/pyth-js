@@ -133,9 +133,9 @@ export class PriceServiceConnection {
       throw new Error("WS is not started.");
     }
 
-    let newPriceIds: HexString[] = [];
+    const newPriceIds: HexString[] = [];
 
-    for (let id of priceIds) {
+    for (const id of priceIds) {
       if (!this.priceFeedCallbacks.has(id)) {
         this.priceFeedCallbacks.set(id, new Set());
         newPriceIds.push(id);
@@ -160,9 +160,9 @@ export class PriceServiceConnection {
       throw new Error("WS is not started.");
     }
 
-    let removedPriceIds: HexString[] = [];
+    const removedPriceIds: HexString[] = [];
 
-    for (let id of priceIds) {
+    for (const id of priceIds) {
       if (this.priceFeedCallbacks.has(id)) {
         let idRemoved = false;
 
@@ -250,7 +250,7 @@ export class PriceServiceConnection {
             `No callback for price id ${priceFeed.id}. It should only happen in a race condition`
           );
         } else {
-          for (let cb of this.priceFeedCallbacks.get(priceFeed.id)!) {
+          for (const cb of this.priceFeedCallbacks.get(priceFeed.id)!) {
             cb(priceFeed);
           }
         }
