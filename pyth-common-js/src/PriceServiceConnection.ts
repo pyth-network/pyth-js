@@ -130,7 +130,7 @@ export class PriceServiceConnection {
     cb: PriceFeedUpdateCallback
   ) {
     if (this.wsClient === undefined) {
-      throw new Error("WS is not started.");
+      await this.startWebSocket();
     }
 
     const newPriceIds: HexString[] = [];
@@ -157,7 +157,7 @@ export class PriceServiceConnection {
     cb?: PriceFeedUpdateCallback
   ) {
     if (this.wsClient === undefined) {
-      throw new Error("WS is not started.");
+      await this.startWebSocket();
     }
 
     const removedPriceIds: HexString[] = [];
@@ -189,7 +189,11 @@ export class PriceServiceConnection {
       type: "unsubscribe",
     };
 
-    this.wsClient?.send(JSON.stringify(message));
+    await this.wsClient?.send(JSON.stringify(message));
+
+    if (this.priceFeedCallbacks.size === 0) {
+      this.stopWebSocket();
+    }
   }
 
   async startWebSocket() {
@@ -265,9 +269,6 @@ export class PriceServiceConnection {
   }
 
   stopWebSocket() {
-    if (this.wsClient === undefined) {
-      throw new Error("WS Endpoint is not given hence Websocket is disabled.");
-    }
     this.wsClient?.closeWebSocket();
     this.wsClient = undefined;
     this.priceFeedCallbacks.clear();
