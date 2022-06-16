@@ -14,7 +14,7 @@ const argv = yargs(hideBin(process.argv))
     type: "string",
     required: true,
   })
-  .option("wss", {
+  .option("ws", {
     description:
       "Web Socket endpoint for the Price service. e.g: wss://endpoint/example",
     type: "string",
@@ -34,7 +34,7 @@ const argv = yargs(hideBin(process.argv))
 async function run() {
   const connection = new PriceServiceConnection({
     httpEndpoint: argv.http,
-    wsEndpoint: argv.wss,
+    wsEndpoint: argv.ws,
     logger: console,
   });
 
@@ -43,7 +43,7 @@ async function run() {
   console.log(priceFeeds);
   console.log(priceFeeds?.at(0)?.getCurrentPrice());
 
-  if (argv.wss !== undefined) {
+  if (argv.ws !== undefined) {
     console.log("Subscribing to Price Feed updates");
 
     await connection.startWebSocket();

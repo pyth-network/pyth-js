@@ -213,7 +213,7 @@ export class PriceServiceConnection {
       }
     };
 
-    this.wsClient.onMessage = (data: WebSocket.RawData) => {
+    this.wsClient.onMessage = (data: WebSocket.Data) => {
       this.logger?.info(`Received message ${data.toString()}`);
 
       let message: ServerMessage;

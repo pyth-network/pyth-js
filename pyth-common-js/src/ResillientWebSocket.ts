@@ -6,11 +6,11 @@ export class ResilientWebSocket {
   private wsClient: undefined | WebSocket;
   private wsUserClosed: boolean;
   private wsFailedAttempts: number;
-  private pingTimeout: any; // Node and browser have different implementations
+  private pingTimeout: undefined | NodeJS.Timeout;
   private logger: undefined | Logger;
 
   onError: (error: Error) => any;
-  onMessage: (data: WebSocket.RawData, isBinary: boolean) => void;
+  onMessage: (data: WebSocket.Data) => void;
   onReconnect: () => any;
 
   constructor(endpoint: string, logger?: Logger) {
@@ -50,19 +50,24 @@ export class ResilientWebSocket {
     this.wsClient = new WebSocket(this.endpoint);
     this.wsUserClosed = false;
 
-    this.wsClient.on("open", () => {
+    this.wsClient.onopen = (_event) => {
       this.wsFailedAttempts = 0;
       this.heartbeat();
-    });
+    };
 
-    this.wsClient.on("error", this.onError);
+    this.wsClient.onerror = (event) => {
+      this.onError(event.error);
+    };
 
-    this.wsClient.on("message", this.onMessage);
+    this.wsClient.onmessage = (event) => {
+      this.onMessage(event.data);
+    };
 
-    this.wsClient.on("ping", this.heartbeat.bind(this));
+    this.wsClient.onclose = async (_event) => {
+      if (this.pingTimeout !== undefined) {
+        clearInterval(this.pingTimeout);
+      }
 
-    this.wsClient.on("close", async () => {
-      clearInterval(this.pingTimeout);
       if (this.wsUserClosed === false) {
         this.wsFailedAttempts += 1;
         this.wsClient = undefined;
@@ -77,7 +82,11 @@ export class ResilientWebSocket {
       } else {
         this.logger?.info("Connection closed");
       }
-    });
+    };
+
+    if (this.wsClient.on !== undefined) {
+      this.wsClient.on("ping", this.heartbeat.bind(this)); // Ping handler is undefined in browserside
+    }
   }
 
   /**
@@ -88,7 +97,9 @@ export class ResilientWebSocket {
   private heartbeat() {
     this.logger?.info("Heartbeat");
 
-    clearTimeout(this.pingTimeout);
+    if (this.pingTimeout !== undefined) {
+      clearTimeout(this.pingTimeout);
+    }
 
     this.pingTimeout = setTimeout(() => {
       console.log(this);
