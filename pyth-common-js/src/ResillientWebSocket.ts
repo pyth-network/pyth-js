@@ -85,7 +85,7 @@ export class ResilientWebSocket {
         await sleep(waitTime);
         this.restartUnexpectedClosedWebsocket();
       } else {
-        this.logger?.info("Connection closed");
+        this.logger?.info("The connection has been closed successfully.");
       }
     };
 
@@ -96,7 +96,10 @@ export class ResilientWebSocket {
   }
 
   /**
-   * This approach only works when server constantly pings the clients.
+   * Heartbeat is only enabled in node clients because they support handling
+   * ping-pong events.
+   *
+   * This approach only works when server constantly pings the clients which.
    * Otherwise you might consider sending ping and acting on pong responses
    * yourself.
    */
@@ -109,7 +112,7 @@ export class ResilientWebSocket {
 
     this.pingTimeout = setTimeout(() => {
       console.log(this);
-      this.logger?.warn(`Websocket connection timed out. Reconnecting...`);
+      this.logger?.warn(`Connection timed out. Reconnecting...`);
       this.wsClient?.terminate();
       this.restartUnexpectedClosedWebsocket();
     }, PING_TIMEOUT_DURATION);
@@ -130,6 +133,7 @@ export class ResilientWebSocket {
       }
     }
   }
+
   private async restartUnexpectedClosedWebsocket() {
     if (this.wsUserClosed === true) {
       return;

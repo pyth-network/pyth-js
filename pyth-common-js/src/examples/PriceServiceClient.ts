@@ -46,7 +46,7 @@ async function run() {
   if (argv.ws !== undefined) {
     console.log("Subscribing to price feed updates.");
 
-    await connection.subscribePriceFeedUpdate(priceIds, (priceFeed) => {
+    await connection.subscribePriceFeedUpdates(priceIds, (priceFeed) => {
       console.log(
         `Current price for ${priceFeed.id}: ${JSON.stringify(
           priceFeed.getCurrentPrice()
@@ -56,13 +56,13 @@ async function run() {
 
     await sleep(600000);
 
-    // To close the websocket you should either unsubscribe from all updates
-    // or call stopWebSocket directly.
+    // To close the websocket you should either unsubscribe from all
+    // price feeds or call `connection.stopWebSocket()` directly.
 
     console.log("Unsubscribing from price feed updates.");
-    await connection.unsubscribePriceFeedUpdate(priceIds);
+    await connection.unsubscribePriceFeedUpdates(priceIds);
 
-    // await connection.stopWebSocket();
+    // connection.closeWebSocket();
   }
 }
 

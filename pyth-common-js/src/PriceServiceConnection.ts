@@ -125,7 +125,18 @@ export class PriceServiceConnection {
     return response.data;
   }
 
-  async subscribePriceFeedUpdate(
+  /**
+   * Subscribe to updates for given price ids.
+   *
+   * It will start a websocket connection if it's not started yet.
+   * Also, it won't throw any exception if given price ids are invalid or connection errors. Instead,
+   * it calls `connection.onWsError`. If you want to handle the errors you should set the
+   * `onWsError` function to your custom error handler.
+   *
+   * @param priceIds Array of hex-encoded price ids.
+   * @param cb Callback function that is called with a PriceFeed upon updates to given price ids.
+   */
+  async subscribePriceFeedUpdates(
     priceIds: HexString[],
     cb: PriceFeedUpdateCallback
   ) {
@@ -152,7 +163,18 @@ export class PriceServiceConnection {
     await this.wsClient?.send(JSON.stringify(message));
   }
 
-  async unsubscribePriceFeedUpdate(
+  /**
+   * Unsubscribe from updates for given price ids.
+   *
+   * It will close the websocket connection if it's not subscribed to any price feed updates anymore.
+   * Also, it won't throw any exception if given price ids are invalid or connection errors. Instead,
+   * it calls `connection.onWsError`. If you want to handle the errors you should set the
+   * `onWsError` function to your custom error handler.
+   *
+   * @param priceIds Array of hex-encoded price ids.
+   * @param cb Optional callback, if set it will only unsubscribe this callback from updates for given price ids.
+   */
+  async unsubscribePriceFeedUpdates(
     priceIds: HexString[],
     cb?: PriceFeedUpdateCallback
   ) {
@@ -192,10 +214,15 @@ export class PriceServiceConnection {
     await this.wsClient?.send(JSON.stringify(message));
 
     if (this.priceFeedCallbacks.size === 0) {
-      this.stopWebSocket();
+      this.closeWebSocket();
     }
   }
 
+  /**
+   * Starts connection websocket.
+   *
+   * This function is called automatically upon subscribing to price feed updates.
+   */
   async startWebSocket() {
     if (this.wsEndpoint === undefined) {
       throw new Error("Websocket endpoint is undefined.");
@@ -266,7 +293,14 @@ export class PriceServiceConnection {
     await this.wsClient.startWebSocket();
   }
 
-  stopWebSocket() {
+  /**
+   * Closes connection websocket.
+   *
+   * At termination, the websocket should be closed to finish the
+   * process elegantly. It will automatically close when the connection
+   * is subscribed to no price feeds.
+   */
+  closeWebSocket() {
     this.wsClient?.closeWebSocket();
     this.wsClient = undefined;
     this.priceFeedCallbacks.clear();
