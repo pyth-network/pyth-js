@@ -8,15 +8,15 @@ function sleep(ms: number) {
 }
 
 const argv = yargs(hideBin(process.argv))
-  .option("http", {
+  .option("endpoint", {
     description:
-      "HTTP endpoint for the Price service. e.g: https://endpoint/example",
+      "Endpoint for the price service. e.g: https://endpoint/example",
     type: "string",
     required: true,
   })
-  .option("ws", {
+  .option("wsEndpoint", {
     description:
-      "Web Socket endpoint for the Price service. e.g: wss://endpoint/example",
+      "Optional web socket endpoint for the price service if it's different than endpoint. e.g: wss://endpoint/example",
     type: "string",
     required: false,
   })
@@ -32,9 +32,8 @@ const argv = yargs(hideBin(process.argv))
   .parseSync();
 
 async function run() {
-  const connection = new PriceServiceConnection({
-    httpEndpoint: argv.http,
-    wsEndpoint: argv.ws,
+  const connection = new PriceServiceConnection(argv.endpoint, {
+    wsEndpoint: argv.wsEndpoint,
     logger: console,
   });
 
@@ -43,27 +42,25 @@ async function run() {
   console.log(priceFeeds);
   console.log(priceFeeds?.at(0)?.getCurrentPrice());
 
-  if (argv.ws !== undefined) {
-    console.log("Subscribing to price feed updates.");
+  console.log("Subscribing to price feed updates.");
 
-    await connection.subscribePriceFeedUpdates(priceIds, (priceFeed) => {
-      console.log(
-        `Current price for ${priceFeed.id}: ${JSON.stringify(
-          priceFeed.getCurrentPrice()
-        )}.`
-      );
-    });
+  await connection.subscribePriceFeedUpdates(priceIds, (priceFeed) => {
+    console.log(
+      `Current price for ${priceFeed.id}: ${JSON.stringify(
+        priceFeed.getCurrentPrice()
+      )}.`
+    );
+  });
 
-    await sleep(600000);
+  await sleep(600000);
 
-    // To close the websocket you should either unsubscribe from all
-    // price feeds or call `connection.stopWebSocket()` directly.
+  // To close the websocket you should either unsubscribe from all
+  // price feeds or call `connection.stopWebSocket()` directly.
 
-    console.log("Unsubscribing from price feed updates.");
-    await connection.unsubscribePriceFeedUpdates(priceIds);
+  console.log("Unsubscribing from price feed updates.");
+  await connection.unsubscribePriceFeedUpdates(priceIds);
 
-    // connection.closeWebSocket();
-  }
+  // connection.closeWebSocket();
 }
 
 run();

@@ -4,13 +4,12 @@ import axiosRetry from "axios-retry";
 import * as WebSocket from "isomorphic-ws";
 import { Logger } from "ts-log";
 import { ResilientWebSocket } from "./ResillientWebSocket";
+import { makeWebsocketUrl } from "./utils";
 
 export type DurationInMs = number;
 
 export type PriceServiceConnectionConfig = {
-  /* HTTP Endpoint of the price service. Example: https://website/example */
-  httpEndpoint: string;
-  /* WebSocket Endpoint of the price service. Example: wss://website/example */
+  /* Optional WebSocket Endpoint of the price service if it has host/port than the endpoint. */
   wsEndpoint?: string;
   /* Timeout of each request (for all of retries). Default: 5000ms */
   timeout?: DurationInMs;
@@ -61,23 +60,29 @@ export class PriceServiceConnection {
 
   private logger: undefined | Logger;
 
-  constructor(config: PriceServiceConnectionConfig) {
+  /**
+   * Constructs a new Connection.
+   *
+   * @param endpoint endpoint URL to the price service. Example: https://website/example
+   * @param config Optional PriceServiceConnectionConfig for custom configurations.
+   */
+  constructor(endpoint: string, config?: PriceServiceConnectionConfig) {
     this.httpClient = axios.create({
-      baseURL: config.httpEndpoint,
-      timeout: config.timeout || 5000,
+      baseURL: endpoint,
+      timeout: config?.timeout || 5000,
     });
     axiosRetry(this.httpClient, {
-      retries: config.httpRetries || 3,
+      retries: config?.httpRetries || 3,
       retryDelay: axiosRetry.exponentialDelay,
     });
 
     this.priceFeedCallbacks = new Map();
-    this.logger = config.logger;
+    this.logger = config?.logger;
     this.onWsError = (error: Error) => {
       this.logger?.error(error);
     };
 
-    this.wsEndpoint = config.wsEndpoint;
+    this.wsEndpoint = config?.wsEndpoint || makeWebsocketUrl(endpoint);
   }
 
   /**
