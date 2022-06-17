@@ -5,7 +5,7 @@
  * @returns Ws(s) protocol endpoint of the same address
  */
 export function makeWebsocketUrl(endpoint: string) {
-  let url = new URL(endpoint);
+  const url = new URL(endpoint);
   const useHttps = url.protocol === "https:";
 
   url.protocol = useHttps ? "wss:" : "ws:";

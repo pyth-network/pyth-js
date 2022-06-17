@@ -62,7 +62,7 @@ export class ResilientWebSocket {
     this.wsClient = new WebSocket(this.endpoint);
     this.wsUserClosed = false;
 
-    this.wsClient.onopen = (_event) => {
+    this.wsClient.onopen = () => {
       this.wsFailedAttempts = 0;
       // Ping handler is undefined in browser side so heartbeat is disabled.
       if (this.wsClient!.on !== undefined) {
@@ -78,7 +78,7 @@ export class ResilientWebSocket {
       this.onMessage(event.data);
     };
 
-    this.wsClient.onclose = async (_event) => {
+    this.wsClient.onclose = async () => {
       if (this.pingTimeout !== undefined) {
         clearInterval(this.pingTimeout);
       }
