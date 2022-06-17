@@ -3,10 +3,14 @@ import { hideBin } from "yargs/helpers";
 
 import { EvmPriceServiceConnection } from "../index";
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 const argv = yargs(hideBin(process.argv))
-  .option("http", {
+  .option("endpoint", {
     description:
-      "HTTP endpoint for the Price service. e.g: https://endpoint/example",
+      "Endpoint URL for the price service. e.g: https://endpoint/example",
     type: "string",
     required: true,
   })
@@ -22,20 +26,38 @@ const argv = yargs(hideBin(process.argv))
   .parseSync();
 
 async function run() {
-  const connection = new EvmPriceServiceConnection({
-    httpEndpoint: argv.http,
+  const connection = new EvmPriceServiceConnection(argv.endpoint, {
+    logger: console, // Providing logger will allow the connection to log it's events.
   });
-  console.log(argv.priceIds);
-  const priceFeeds = await connection.getLatestPriceFeeds(
-    argv.priceIds as string[]
-  );
+
+  const priceIds = argv.priceIds as string[];
+  console.log(priceIds);
+  const priceFeeds = await connection.getLatestPriceFeeds(priceIds);
   console.log(priceFeeds);
   console.log(priceFeeds?.at(0)?.getCurrentPrice());
 
-  const updateData = await connection.getPriceFeedsUpdateData(
-    argv.priceIds as string[]
-  );
+  const updateData = await connection.getPriceFeedsUpdateData(priceIds);
   console.log(updateData);
+
+  console.log("Subscribing to price feed updates.");
+
+  await connection.subscribePriceFeedUpdates(priceIds, (priceFeed) => {
+    console.log(
+      `Current price for ${priceFeed.id}: ${JSON.stringify(
+        priceFeed.getCurrentPrice()
+      )}.`
+    );
+  });
+
+  await sleep(600000);
+
+  // To close the websocket you should either unsubscribe from all
+  // price feeds or call `connection.stopWebSocket()` directly.
+
+  console.log("Unsubscribing from price feed updates.");
+  await connection.unsubscribePriceFeedUpdates(priceIds);
+
+  // connection.closeWebSocket();
 }
 
 run();

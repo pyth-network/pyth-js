@@ -13,9 +13,9 @@ const argv = yargs(hideBin(process.argv))
     required: true,
     default: "bsc_testnet",
   })
-  .option("http", {
+  .option("endpoint", {
     description:
-      "HTTP endpoint for the Price service. e.g: https://endpoint/example",
+      "Endpoint URL for the price service. e.g: https://endpoint/example",
     type: "string",
     required: true,
   })
@@ -94,7 +94,7 @@ const pythRelayAbi = [
   },
 ];
 
-const connection = new EvmPriceServiceConnection({ httpEndpoint: argv.http });
+const connection = new EvmPriceServiceConnection(argv.endpoint);
 
 async function run() {
   const provider = new HDWalletProvider({

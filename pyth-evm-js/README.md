@@ -25,9 +25,9 @@ providing a way to fetch these prices directly in your code. The following examp
 Pyth prices and submit them to the network:
 
 ```typescript
-const connection = new EvmPriceServiceConnection({
-  httpEndpoint: "https://prices-testnet.pyth.network", // See Price Service Endpoints section below for other endpoints
-});
+const connection = new EvmPriceServiceConnection(
+  "https://prices-testnet.pyth.network"
+); // See Price Service Endpoints section below for other endpoints
 
 const priceIds = [
   // You can find the ids of prices at https://pyth.network/developers/price-feeds#binance-smart-chain-testnet
@@ -40,6 +40,18 @@ const priceIds = [
 const priceFeeds = connection.getPythLatestPriceFeeds(priceIds);
 console.log(priceFeeds[0].getCurrentPrice()); // Price { conf: '1234', expo: -8, price: '12345678' }
 console.log(priceFeeds[1].getEmaPrice()); // Exponentially-weighted moving average price
+
+// By subscribing to the price feeds you can get their updates realtime.
+connection.subscribePriceFeedUpdates(priceIds, (priceFeed) => {
+  console.log("Received a new price feed update!");
+  console.log(priceFeed.getCurrentPrice());
+});
+
+// When using subscription, make sure to close the websocket upon termination to finish the process gracefully.
+// connection.closeWebSocket();
+setTimeout(() => {
+  connection.closeWebSocket();
+}, 60000);
 
 // In order to use Pyth prices in your protocol you need to submit the price update data to Pyth contract in your target
 // chain. `getPriceUpdateData` creates the update data which can be submitted to your contract. Then your contract should
@@ -83,10 +95,10 @@ There are two examples in [examples](./src/examples/).
 
 #### EvmPriceServiceClient
 
-[This example](./src/examples/EvmPriceServiceClient.ts) fetches a `PriceFeed` for each given price id and prints them. You can run it with `npm run example-client`. A full command that prints BTC and ETH Price Feeds, in the testnet network, looks like so:
+[This example](./src/examples/EvmPriceServiceClient.ts) fetches a `PriceFeed` for each given price id and prints them. It also subscribes for their updates and prints the updates as they come. You can run it with `npm run example-client`. A full command that prints BTC and ETH Price Feeds, in the testnet network, looks like so:
 
 ```bash
-npm run example-client -- --http https://prices-testnet.pyth.network --price-ids 0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6
+npm run example-client -- --endpoint https://prices-testnet.pyth.network --price-ids 0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6
 ```
 
 #### EvmRelay
@@ -100,7 +112,7 @@ npm run example-client -- --http https://prices-testnet.pyth.network --price-ids
 You can run this example with `npm run example-relay`. A full command that updates BTC and ETH prices on the BNB Chain testnet network looks like so:
 
 ```bash
-npm run example-relay -- --network bnb_testnet --mnemonic "my good mnemonic" --http https://prices-testnet.pyth.network --price-ids 0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6
+npm run example-relay -- --network bnb_testnet --mnemonic "my good mnemonic" --endpoint https://prices-testnet.pyth.network --price-ids 0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6
 ```
 
 ## How Pyth Works on EVM Chains

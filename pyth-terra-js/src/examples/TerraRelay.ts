@@ -12,9 +12,9 @@ const argv = yargs(hideBin(process.argv))
     required: true,
     default: "testnet",
   })
-  .option("http", {
+  .option("endpoint", {
     description:
-      "HTTP endpoint for the Price service. e.g: https://endpoint/example",
+      "Endpoint URL for the Price service. e.g: https://endpoint/example",
     type: "string",
     required: true,
   })
@@ -74,7 +74,7 @@ if (CONFIG[argv.network] !== undefined) {
 
 const feeDenoms = ["uluna"];
 
-const connection = new TerraPriceServiceConnection({ httpEndpoint: argv.http });
+const connection = new TerraPriceServiceConnection(argv.endpoint);
 const lcd = new LCDClient(terraHost);
 const wallet = lcd.wallet(
   new MnemonicKey({
