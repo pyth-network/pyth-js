@@ -9,7 +9,7 @@ import { makeWebsocketUrl } from "./utils";
 export type DurationInMs = number;
 
 export type PriceServiceConnectionConfig = {
-  /* Optional WebSocket Endpoint of the price service if it has host/port than the endpoint. */
+  /* Optional websocket endpoint of the price service if it has host/port other than the endpoint. */
   wsEndpoint?: string;
   /* Timeout of each request (for all of retries). Default: 5000ms */
   timeout?: DurationInMs;
@@ -266,7 +266,7 @@ export class PriceServiceConnection {
       if (message.type === "response") {
         if (message.status === "error") {
           this.logger?.error(
-            `Error Response from the websocket server ${message.error}.`
+            `Error response from the websocket server ${message.error}.`
           );
           this.onWsError(new Error(message.error));
         }

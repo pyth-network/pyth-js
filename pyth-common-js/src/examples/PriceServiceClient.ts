@@ -10,7 +10,7 @@ function sleep(ms: number) {
 const argv = yargs(hideBin(process.argv))
   .option("endpoint", {
     description:
-      "Endpoint for the price service. e.g: https://endpoint/example",
+      "Endpoint URL for the price service. e.g: https://endpoint/example",
     type: "string",
     required: true,
   })
