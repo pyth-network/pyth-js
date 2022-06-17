@@ -60,6 +60,9 @@ const CONFIG: Record<string, any> = {
   mumbai: {
     network: "https://matic-mumbai.chainstacklabs.com",
   },
+  aurora_testnet: {
+    network: "https://testnet.aurora.dev",
+  },
 };
 
 let network: string;
