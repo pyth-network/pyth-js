@@ -3,6 +3,16 @@ import { Logger } from "ts-log";
 
 const PING_TIMEOUT_DURATION = 30000 + 3000; // It is 30s on the server and 3s is added for delays
 
+/**
+ * This class wraps websocket to provide a resilient web socket client.
+ *
+ * It will reconnect if connection fails with exponential backoff. Also, in node, it will reconnect
+ * if it receives no ping request from server within a while as indication of timeout (assuming
+ * the server sends it regularly).
+ *
+ * This class also logs events if logger is given and by replacing onError method you can handle
+ * connection errors yourself (e.g: do not retry and close the connection).
+ */
 export class ResilientWebSocket {
   private endpoint: string;
   private wsClient: undefined | WebSocket;
