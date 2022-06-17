@@ -34,7 +34,7 @@ const argv = yargs(hideBin(process.argv))
 async function run() {
   const connection = new PriceServiceConnection(argv.endpoint, {
     wsEndpoint: argv.wsEndpoint,
-    logger: console,
+    logger: console, // Providing logger will allow the connection to log it's events.
   });
 
   const priceIds = argv.priceIds as string[];

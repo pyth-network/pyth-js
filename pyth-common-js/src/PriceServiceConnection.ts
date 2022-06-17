@@ -51,14 +51,14 @@ export class PriceServiceConnection {
   private wsClient: undefined | ResilientWebSocket;
   private wsEndpoint: undefined | string;
 
+  private logger: undefined | Logger;
+
   /**
    * Custom handler for web socket errors (connection and message parsing).
    *
    * Default handler only logs the errors.
    */
   onWsError: (error: Error) => void;
-
-  private logger: undefined | Logger;
 
   /**
    * Constructs a new Connection.
