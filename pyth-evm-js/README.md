@@ -27,7 +27,7 @@ Pyth prices and submit them to the network:
 ```typescript
 const connection = new EvmPriceServiceConnection(
   "https://prices-testnet.pyth.network"
-); // See Price Service Endpoints section below for other endpoints
+); // See Price Service endpoints section below for other endpoints
 
 const priceIds = [
   // You can find the ids of prices at https://pyth.network/developers/price-feeds#binance-smart-chain-testnet
@@ -41,14 +41,13 @@ const priceFeeds = connection.getPythLatestPriceFeeds(priceIds);
 console.log(priceFeeds[0].getCurrentPrice()); // Price { conf: '1234', expo: -8, price: '12345678' }
 console.log(priceFeeds[1].getEmaPrice()); // Exponentially-weighted moving average price
 
-// By subscribing to the price feeds you can get their updates realtime.
+// By subscribing to the price feeds you can get their updates in real-time.
 connection.subscribePriceFeedUpdates(priceIds, (priceFeed) => {
   console.log("Received a new price feed update!");
   console.log(priceFeed.getCurrentPrice());
 });
 
 // When using subscription, make sure to close the websocket upon termination to finish the process gracefully.
-// connection.closeWebSocket();
 setTimeout(() => {
   connection.closeWebSocket();
 }, 60000);
@@ -95,7 +94,7 @@ There are two examples in [examples](./src/examples/).
 
 #### EvmPriceServiceClient
 
-[This example](./src/examples/EvmPriceServiceClient.ts) fetches a `PriceFeed` for each given price id and prints them. It also subscribes for their updates and prints the updates as they come. You can run it with `npm run example-client`. A full command that prints BTC and ETH Price Feeds, in the testnet network, looks like so:
+[This example](./src/examples/EvmPriceServiceClient.ts) fetches `PriceFeed` updates using both a HTTP-request API and a streaming websocket API. You can run it with `npm run example-client`. A full command that prints BTC and ETH price feeds, in the testnet network, looks like so:
 
 ```bash
 npm run example-client -- --endpoint https://prices-testnet.pyth.network --price-ids 0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6
@@ -125,7 +124,7 @@ This signed message can then be submitted to the Pyth contract on the EVM networ
 
 Price updates are not submitted on the EVM networks automatically: rather, when a consumer needs to use the value of a price they should first submit the latest Wormhole update for that price to the Pyth contract on the EVM network they are working on. This will make the most recent price update available on-chain for EVM contracts to use.
 
-## Price Service Endpoints
+## Price Service endpoints
 
 Public endpoints for the Price Service are provided for both mainnet and testnet. These can be used regardless of which network you deploy your own contracts to as long as it is a Pyth supported network. For example, you can use the testnet Price Service whether you are deploying your contract to the BNB or Polygon testnet.
 

@@ -10,13 +10,13 @@ function sleep(ms: number) {
 const argv = yargs(hideBin(process.argv))
   .option("endpoint", {
     description:
-      "Endpoint URL for the price service. e.g: https://endpoint/example",
+      "Endpoint URL for the Price Service. e.g: https://endpoint/example",
     type: "string",
     required: true,
   })
   .option("price-ids", {
     description:
-      "Space separated Price Feed Ids (in hex) to fetch" +
+      "Space separated price feed ids (in hex) to fetch" +
       " e.g: 0xf9c0172ba10dfa4d19088d...",
     type: "array",
     required: true,
@@ -27,7 +27,7 @@ const argv = yargs(hideBin(process.argv))
 
 async function run() {
   const connection = new EvmPriceServiceConnection(argv.endpoint, {
-    logger: console, // Providing logger will allow the connection to log it's events.
+    logger: console, // Providing logger will allow the connection to log its events.
   });
 
   const priceIds = argv.priceIds as string[];
@@ -52,12 +52,10 @@ async function run() {
   await sleep(600000);
 
   // To close the websocket you should either unsubscribe from all
-  // price feeds or call `connection.stopWebSocket()` directly.
+  // price feeds or call `connection.closeWebSocket()` directly.
 
   console.log("Unsubscribing from price feed updates.");
   await connection.unsubscribePriceFeedUpdates(priceIds);
-
-  // connection.closeWebSocket();
 }
 
 run();
