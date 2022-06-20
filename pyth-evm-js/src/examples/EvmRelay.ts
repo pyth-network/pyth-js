@@ -13,9 +13,9 @@ const argv = yargs(hideBin(process.argv))
     required: true,
     default: "bsc_testnet",
   })
-  .option("http", {
+  .option("endpoint", {
     description:
-      "HTTP endpoint for the Price service. e.g: https://endpoint/example",
+      "Endpoint URL for the price service. e.g: https://endpoint/example",
     type: "string",
     required: true,
   })
@@ -27,7 +27,7 @@ const argv = yargs(hideBin(process.argv))
   })
   .option("price-ids", {
     description:
-      "Space separated Price Feed Ids (in hex) to fetch" +
+      "Space separated price feed ids (in hex) to fetch" +
       " e.g: 0xf9c0172ba10dfa4d19088d...",
     type: "array",
     required: true,
@@ -97,7 +97,7 @@ const pythRelayAbi = [
   },
 ];
 
-const connection = new EvmPriceServiceConnection({ httpEndpoint: argv.http });
+const connection = new EvmPriceServiceConnection(argv.endpoint);
 
 async function run() {
   const provider = new HDWalletProvider({

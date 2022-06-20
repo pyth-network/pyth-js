@@ -25,9 +25,9 @@ providing a way to fetch these prices directly in your code. The following examp
 Pyth prices before submitting them to Terra:
 
 ```typescript
-const connection = new TerraPriceServiceConnection({
-  httpEndpoint: "https://prices-testnet.pyth.network", // See Price Service Endpoints section below for other endpoints
-});
+const connection = new TerraPriceServiceConnection(
+  "https://prices-testnet.pyth.network"
+); // See Price Service endpoints section below for other endpoints
 
 const priceIds = [
   // You can find the ids of prices at https://pyth.network/developers/price-feeds#terra-testnet
@@ -40,6 +40,17 @@ const priceIds = [
 const priceFeeds = connection.getLatestPriceFeeds(priceIds);
 console.log(priceFeeds[0].getCurrentPrice()); // Price { conf: '1234', expo: -8, price: '12345678' }
 console.log(priceFeeds[1].getEmaPrice()); // Exponentially-weighted moving average price
+
+// By subscribing to the price feeds you can get their updates realtime.
+connection.subscribePriceFeedUpdates(priceIds, (priceFeed) => {
+  console.log("Received a new price feed update!");
+  console.log(priceFeed.getCurrentPrice());
+});
+
+// When using subscription, make sure to close the websocket upon termination to finish the process gracefully.
+setTimeout(() => {
+  connection.closeWebSocket();
+}, 60000);
 
 // In order to use Pyth prices in your protocol you need to submit the latest price to the Terra network alongside your
 // own transactions. `getPriceUpdateMessages` creates messages that can update the prices.
@@ -62,10 +73,10 @@ There are two examples in [examples](./src/examples/).
 
 #### TerraPriceServiceClient
 
-[This example](./src/examples/TerraPriceServiceClient.ts) fetches a `PriceFeed` for each given price id and prints them. You can run it with `npm run example-client`. A full command that prints BTC and LUNA Price Feeds, in the testnet network, looks like so:
+[This example](./src/examples/TerraPriceServiceClient.ts) fetches `PriceFeed` updates using both a HTTP-request API and a streaming websocket API. You can run it with `npm run example-client`. A full command that prints BTC and LUNA price feeds, in the testnet network, looks like so:
 
 ```bash
-npm run example-client -- --http https://website/example --price-ids f9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 6de025a4cf28124f8ea6cb8085f860096dbc36d9c40002e221fc449337e065b2
+npm run example-client -- --endpoint https://prices-testnet.pyth.network --price-ids f9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 6de025a4cf28124f8ea6cb8085f860096dbc36d9c40002e221fc449337e065b2
 ```
 
 #### TerraRelay
@@ -79,7 +90,7 @@ npm run example-client -- --http https://website/example --price-ids f9c0172ba10
 You can run this example with `npm run example-relay`. A full command that updates BTC and LUNA prices on the testnet network looks like so:
 
 ```bash
-npm run example-relay -- --network testnet --mnemonic "my good mnemonic" --http https://prices-testnet.pyth.network --price-ids f9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 6de025a4cf28124f8ea6cb8085f860096dbc36d9c40002e221fc449337e065b2
+npm run example-relay -- --network testnet --mnemonic "my good mnemonic" --endpoint https://prices-testnet.pyth.network --price-ids f9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 6de025a4cf28124f8ea6cb8085f860096dbc36d9c40002e221fc449337e065b2
 ```
 
 ## How Pyth Works in Terra
@@ -92,7 +103,7 @@ This signed message can then be submitted to the Pyth contract on the Terra netw
 
 Price updates are not submitted on the Terra network automatically: rather, when a consumer needs to use the value of a price they should first submit the latest Wormhole update for that price to Terra. This will make the most recent price update available on-chain for Terra contracts to use.
 
-## Price Service Endpoints
+## Price Service endpoints
 
 Public endpoints for the Price Service are provided for both mainnet and testnet. These can be used regardless of which network you deploy your own contracts to as long as it is a Pyth supported network. For example, you can use the testnet Price Service whether you are deploying your contract to the BNB or Polygon testnet.
 

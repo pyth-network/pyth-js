@@ -3,16 +3,20 @@ import { hideBin } from "yargs/helpers";
 
 import { CONTRACT_ADDR, TerraPriceServiceConnection } from "../index";
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 const argv = yargs(hideBin(process.argv))
-  .option("http", {
+  .option("endpoint", {
     description:
-      "HTTP endpoint for the Price service. e.g: https://endpoint/example",
+      "Endpoint URL for the Price Service. e.g: https://endpoint/example",
     type: "string",
     required: true,
   })
   .option("price-ids", {
     description:
-      "Space separated Price Feed Ids (in hex) to fetch." +
+      "Space separated price feed ids (in hex) to fetch." +
       " e.g: f9c0172ba10dfa4d19088d...",
     type: "array",
     required: true,
@@ -22,22 +26,40 @@ const argv = yargs(hideBin(process.argv))
   .parseSync();
 
 async function run() {
-  const connection = new TerraPriceServiceConnection({
-    httpEndpoint: argv.http,
+  const connection = new TerraPriceServiceConnection(argv.endpoint, {
+    logger: console, // Providing logger will allow the connection to log its events.
   });
-  console.log(argv.priceIds);
-  const priceFeeds = await connection.getLatestPriceFeeds(
-    argv.priceIds as string[]
-  );
+
+  const priceIds = argv.priceIds as string[];
+  console.log(priceIds);
+  const priceFeeds = await connection.getLatestPriceFeeds(priceIds);
   console.log(priceFeeds);
   console.log(priceFeeds?.at(0)?.getCurrentPrice());
 
   const msgs = await connection.getPriceUpdateMessages(
-    argv.priceIds as string[],
+    priceIds,
     CONTRACT_ADDR["testnet"],
     "terra123456789abcdefghijklmonpqrstuvwxyz1234"
   );
   console.log(msgs);
+
+  console.log("Subscribing to price feed updates.");
+
+  await connection.subscribePriceFeedUpdates(priceIds, (priceFeed) => {
+    console.log(
+      `Current price for ${priceFeed.id}: ${JSON.stringify(
+        priceFeed.getCurrentPrice()
+      )}.`
+    );
+  });
+
+  await sleep(600000);
+
+  // To close the websocket you should either unsubscribe from all
+  // price feeds or call `connection.closeWebSocket()` directly.
+
+  console.log("Unsubscribing from price feed updates.");
+  await connection.unsubscribePriceFeedUpdates(priceIds);
 }
 
 run();
