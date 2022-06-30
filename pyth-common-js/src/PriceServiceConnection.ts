@@ -61,7 +61,7 @@ export class PriceServiceConnection {
   /**
    * Constructs a new Connection.
    *
-   * @param endpoint endpoint URL to the price service. Example: https://website/example
+   * @param endpoint endpoint URL to the price service. Example: https://website/example/
    * @param config Optional PriceServiceConnectionConfig for custom configurations.
    */
   constructor(endpoint: string, config?: PriceServiceConnectionConfig) {

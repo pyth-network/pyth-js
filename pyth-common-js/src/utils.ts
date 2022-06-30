@@ -1,7 +1,7 @@
 /**
  * Convert http(s) endpoint to ws(s) endpoint.
  *
- * @param endpoint Http(s) protocol endpoint.
+ * @param endpoint Http(s) protocol endpoint
  * @returns Ws(s) protocol endpoint of the same address
  */
 export function makeWebsocketUrl(endpoint: string) {
