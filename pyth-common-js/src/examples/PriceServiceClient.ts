@@ -14,12 +14,6 @@ const argv = yargs(hideBin(process.argv))
     type: "string",
     required: true,
   })
-  .option("wsEndpoint", {
-    description:
-      "Optional web socket endpoint for the price service if it's different than endpoint. e.g: wss://endpoint/example",
-    type: "string",
-    required: false,
-  })
   .option("price-ids", {
     description:
       "Space separated price feed ids (in hex without leading 0x) to fetch." +
@@ -33,7 +27,6 @@ const argv = yargs(hideBin(process.argv))
 
 async function run() {
   const connection = new PriceServiceConnection(argv.endpoint, {
-    wsEndpoint: argv.wsEndpoint,
     logger: console, // Providing logger will allow the connection to log it's events.
   });
 

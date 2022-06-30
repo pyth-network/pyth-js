@@ -9,8 +9,6 @@ import { makeWebsocketUrl } from "./utils";
 export type DurationInMs = number;
 
 export type PriceServiceConnectionConfig = {
-  /* Optional websocket endpoint of the price service if it has host/port other than the endpoint. */
-  wsEndpoint?: string;
   /* Timeout of each request (for all of retries). Default: 5000ms */
   timeout?: DurationInMs;
   /**
@@ -63,7 +61,7 @@ export class PriceServiceConnection {
   /**
    * Constructs a new Connection.
    *
-   * @param endpoint endpoint URL to the price service. Example: https://website/example
+   * @param endpoint endpoint URL to the price service. Example: https://website/example/
    * @param config Optional PriceServiceConnectionConfig for custom configurations.
    */
   constructor(endpoint: string, config?: PriceServiceConnectionConfig) {
@@ -82,7 +80,7 @@ export class PriceServiceConnection {
       this.logger?.error(error);
     };
 
-    this.wsEndpoint = config?.wsEndpoint || makeWebsocketUrl(endpoint);
+    this.wsEndpoint = makeWebsocketUrl(endpoint);
   }
 
   /**
@@ -99,7 +97,7 @@ export class PriceServiceConnection {
       return [];
     }
 
-    const response = await this.httpClient.get("/latest_price_feeds", {
+    const response = await this.httpClient.get("/api/latest_price_feeds", {
       params: {
         ids: priceIds,
       },
@@ -122,7 +120,7 @@ export class PriceServiceConnection {
    * @returns Array of base64 encoded VAAs.
    */
   protected async getLatestVaas(priceIds: HexString[]): Promise<string[]> {
-    const response = await this.httpClient.get("/latest_vaas", {
+    const response = await this.httpClient.get("/api/latest_vaas", {
       params: {
         ids: priceIds,
       },
