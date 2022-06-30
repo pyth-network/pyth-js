@@ -38,6 +38,9 @@ const argv = yargs(hideBin(process.argv))
   })
   .help()
   .alias("help", "h")
+  .parserConfiguration({
+    "parse-numbers": false,
+  })
   .parseSync();
 
 const CONFIG: Record<string, any> = {
