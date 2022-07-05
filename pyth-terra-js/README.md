@@ -26,7 +26,7 @@ Pyth prices before submitting them to Terra:
 
 ```typescript
 const connection = new TerraPriceServiceConnection(
-  "https://prices-testnet.pyth.network"
+  "https://prices.testnet.pyth.network"
 ); // See Price Service endpoints section below for other endpoints
 
 const priceIds = [
@@ -76,7 +76,7 @@ There are two examples in [examples](./src/examples/).
 [This example](./src/examples/TerraPriceServiceClient.ts) fetches `PriceFeed` updates using both a HTTP-request API and a streaming websocket API. You can run it with `npm run example-client`. A full command that prints BTC and LUNA price feeds, in the testnet network, looks like so:
 
 ```bash
-npm run example-client -- --endpoint https://prices-testnet.pyth.network --price-ids f9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 6de025a4cf28124f8ea6cb8085f860096dbc36d9c40002e221fc449337e065b2
+npm run example-client -- --endpoint https://prices.testnet.pyth.network --price-ids f9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 6de025a4cf28124f8ea6cb8085f860096dbc36d9c40002e221fc449337e065b2
 ```
 
 #### TerraRelay
@@ -90,7 +90,7 @@ npm run example-client -- --endpoint https://prices-testnet.pyth.network --price
 You can run this example with `npm run example-relay`. A full command that updates BTC and LUNA prices on the testnet network looks like so:
 
 ```bash
-npm run example-relay -- --network testnet --mnemonic "my good mnemonic" --endpoint https://prices-testnet.pyth.network --price-ids f9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 6de025a4cf28124f8ea6cb8085f860096dbc36d9c40002e221fc449337e065b2
+npm run example-relay -- --network testnet --mnemonic "my good mnemonic" --endpoint https://prices.testnet.pyth.network --price-ids f9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 6de025a4cf28124f8ea6cb8085f860096dbc36d9c40002e221fc449337e065b2
 ```
 
 ## How Pyth Works in Terra
@@ -109,5 +109,5 @@ Public endpoints for the Price Service are provided for both mainnet and testnet
 
 | network | url                                 |
 | ------- | ----------------------------------- |
-| mainnet | https://prices-mainnet.pyth.network |
-| testnet | https://prices-testnet.pyth.network |
+| mainnet | https://prices.mainnet.pyth.network |
+| testnet | https://prices.testnet.pyth.network |
