@@ -7,7 +7,7 @@ on:
 jobs:
   publish-pyth-common-js:
     name: Publish Pyth Common JS
-    if: ${{ startsWith(github.ref, "refs/tags/pyth-common-js:v") }}
+    if: ${{ startsWith(github.ref, 'refs/tags/pyth-common-js:v') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -23,7 +23,7 @@ jobs:
         working-directory: "pyth-common-js"
   publish-pyth-evm-js:
     name: Publish Pyth EVM JS
-    if: ${{ startsWith(github.ref, "refs/tags/pyth-evm-js:v") }}
+    if: ${{ startsWith(github.ref, 'refs/tags/pyth-evm-js:v') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -39,7 +39,7 @@ jobs:
         working-directory: "pyth-evm-js"
   publish-pyth-terra-js:
     name: Publish Pyth Common JS
-    if: ${{ startsWith(github.ref, "refs/tags/pyth-terra-js:v") }}
+    if: ${{ startsWith(github.ref, 'refs/tags/pyth-terra-js:v') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
