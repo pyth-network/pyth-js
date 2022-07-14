@@ -1,6 +1,6 @@
 {
   "name": "@pythnetwork/pyth-evm-js",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Pyth Network EVM Utils in JS",
   "homepage": "https://pyth.network",
   "author": {
