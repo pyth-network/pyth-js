@@ -17,7 +17,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
       - run: npm ci
         working-directory: "pyth-common-js"
       - run: npm run build
@@ -34,7 +33,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
       - run: npm ci
         working-directory: "pyth-evm-js"
       - run: npm run build
@@ -51,7 +49,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
       - run: npm ci
         working-directory: "pyth-terra-js"
       - run: npm run build
