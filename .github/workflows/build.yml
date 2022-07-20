@@ -1,12 +1,12 @@
-name: Publish Pyth SDK to crates.io
+name: Build Pyth JS packages
 
 on:
   pull_request:
   push:
     branches: [main]
 jobs:
-  publish-pyth-common-js:
-    name: Publish Pyth Common JS
+  build-pyth-common-js:
+    name: Build Pyth Common JS
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -21,8 +21,8 @@ jobs:
         working-directory: "pyth-common-js"
       - run: npm run build
         working-directory: "pyth-common-js"
-  publish-pyth-evm-js:
-    name: Publish Pyth EVM JS
+  build-pyth-evm-js:
+    name: Build Pyth EVM JS
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -44,8 +44,8 @@ jobs:
         working-directory: "pyth-evm-js"
       - run: npm run build
         working-directory: "pyth-evm-js"
-  publish-pyth-terra-js:
-    name: Publish Pyth Common JS
+  build-pyth-terra-js:
+    name: Build Pyth Common JS
     runs-on: ubuntu-latest
     strategy:
       matrix:
