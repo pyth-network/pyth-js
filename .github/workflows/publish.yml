@@ -1,4 +1,4 @@
-name: Publish Pyth SDK to crates.io
+name: Publish Pyth JS packages
 
 on:
   release:
