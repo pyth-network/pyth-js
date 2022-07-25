@@ -1,3 +1,5 @@
+import { HexString } from "@pythnetwork/pyth-sdk-js";
+
 /**
  * Convert http(s) endpoint to ws(s) endpoint.
  *
@@ -11,4 +13,12 @@ export function makeWebsocketUrl(endpoint: string) {
   url.protocol = useHttps ? "wss:" : "ws:";
 
   return url.toString();
+}
+
+export function removeLeading0xIfExists(id: HexString): HexString {
+  if (id.startsWith("0x")) {
+    return id.substring(2);
+  } else {
+    return id;
+  }
 }
