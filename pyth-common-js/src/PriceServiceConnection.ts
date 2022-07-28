@@ -4,7 +4,7 @@ import axiosRetry from "axios-retry";
 import * as WebSocket from "isomorphic-ws";
 import { Logger } from "ts-log";
 import { ResilientWebSocket } from "./ResillientWebSocket";
-import { makeWebsocketUrl } from "./utils";
+import { makeWebsocketUrl, removeLeading0xIfExists } from "./utils";
 
 export type DurationInMs = number;
 
@@ -147,6 +147,8 @@ export class PriceServiceConnection {
       await this.startWebSocket();
     }
 
+    priceIds = priceIds.map((priceId) => removeLeading0xIfExists(priceId));
+
     const newPriceIds: HexString[] = [];
 
     for (const id of priceIds) {
@@ -184,6 +186,8 @@ export class PriceServiceConnection {
     if (this.wsClient === undefined) {
       await this.startWebSocket();
     }
+
+    priceIds = priceIds.map((priceId) => removeLeading0xIfExists(priceId));
 
     const removedPriceIds: HexString[] = [];
 

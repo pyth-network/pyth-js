@@ -1,6 +1,6 @@
 {
   "name": "@pythnetwork/pyth-common-js",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Pyth Network Common Utils in JS",
   "author": {
     "name": "Pyth Data Association"
