@@ -14,8 +14,8 @@ export class Querier {
       .queryPriceFeed("0x" + removeLeading0x(priceId))
       .call();
     return new PriceFeed({
-      id: priceFeedRaw.id.substr(2),
-      productId: priceFeedRaw.productId.substr(2),
+      id: removeLeading0x(priceFeedRaw.id),
+      productId: removeLeading0x(priceFeedRaw.productId),
       price: priceFeedRaw.price,
       conf: priceFeedRaw.conf,
       expo: Number(priceFeedRaw.expo),
