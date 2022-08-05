@@ -60,22 +60,15 @@ export class Handler {
   shouldUpdate(onChainPriceFeed: PriceFeed, newPriceFeed: PriceFeed): boolean {
     console.log(`Checking whether ${newPriceFeed.id} needs to be updated.`);
 
-    if (onChainPriceFeed.status !== PriceStatus.Trading) {
-      console.log(
-        "On-chain price has a non-trading status. Will update the price."
-      );
-      // New price feed might have an non-trading status as well, but since it is newer
-      // and some protocols might use getPrevPriceUnsafe() we will update the price regardless.
-      return true;
-    }
-
     if (newPriceFeed.status !== PriceStatus.Trading) {
       console.log("New price has a non-trading status. No update needed.");
       return false;
     }
 
     const newCurrentPrice = newPriceFeed.getCurrentPrice()!;
-    const onChainCurrentPrice = onChainPriceFeed.getCurrentPrice()!;
+    const onChainCurrentPrice =
+      onChainPriceFeed.getCurrentPrice() ||
+      onChainPriceFeed.getPrevPriceUnchecked()[0];
 
     const timeDifference =
       newPriceFeed.publishTime - onChainPriceFeed.publishTime;
