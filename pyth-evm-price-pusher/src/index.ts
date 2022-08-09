@@ -1,18 +1,16 @@
 #!/usr/bin/env node
 
-import Web3 from "web3";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import AbstractPythAbi from "@pythnetwork/pyth-sdk-solidity/abis/AbstractPyth.json";
 import {
   EvmPriceServiceConnection,
   CONTRACT_ADDR,
 } from "@pythnetwork/pyth-evm-js";
-import HDWalletProvider from "@truffle/hdwallet-provider";
 import { removeLeading0x } from "./utils";
 import { Pusher } from "./pusher";
-import { Handler } from "./handler";
-import { Querier } from "./querier";
+import { EvmPriceListener } from "./evm-price-listener";
+import { PythPriceListener } from "./pyth-price-listener";
+import * as fs from "fs";
 
 const argv = yargs(hideBin(process.argv))
   .option("network", {
@@ -41,36 +39,38 @@ const argv = yargs(hideBin(process.argv))
     type: "array",
     required: true,
   })
-  .option("mnemonic", {
-    description: "Mnemonic (private key) for sender",
+  .option("mnemonic-file", {
+    description: "Payer mnemonic (private key) file",
     type: "string",
     required: true,
   })
   .option("time-difference", {
-    description: "Time difference (in seconds) to update a price feed",
+    description: "Time difference (in seconds) to push a price feed",
     type: "number",
     required: true,
   })
   .option("price-deviation", {
-    description: "Price deviation percent to update a price feed",
+    description: "Price deviation percent to push a price feed",
     type: "number",
     required: true,
   })
   .option("confidence-ratio", {
-    description: "The confidence/price percent to update a price feed",
+    description: "The confidence/price percent to push a price feed",
     type: "number",
     required: true,
   })
   .option("cooldown-duration", {
     description:
-      "The time (in seconds) that it takes for a tx to get confirmed and be visible in queries to the RPC node.",
+      "The amount of time (in seconds) to wait between pushing price updates. " +
+      "Should be greater than the block time of the network so one update is not " +
+      "pushed twice.",
     type: "number",
     required: false,
     default: 10,
   })
-  .option("batching-duration", {
+  .option("evm-polling-frequency", {
     description:
-      "The time (in seconds) that the relayer waits to group prices that need to be updated.",
+      "The frequency to poll price info data from the evm network if the RPC is not a websocket.",
     type: "number",
     required: false,
     default: 10,
@@ -122,41 +122,41 @@ if (CONFIG[argv.network] !== undefined) {
   pythContractAddr = argv.pythContract;
 }
 
-const connection = new EvmPriceServiceConnection(argv.endpoint);
+async function run() {
+  const connection = new EvmPriceServiceConnection(argv.endpoint);
 
-const provider = new HDWalletProvider({
-  mnemonic: {
-    phrase: argv.mnemonic,
-  },
-  providerOrUrl: network,
-});
+  const priceIds = (argv.priceIds as string[]).map(removeLeading0x);
 
-const web3 = new Web3(provider as any);
+  const evmPriceListener = new EvmPriceListener(
+    network,
+    pythContractAddr,
+    priceIds,
+    {
+      pollingFrequency: argv.evmPollingFrequency,
+    }
+  );
 
-const pythContract = new web3.eth.Contract(
-  AbstractPythAbi as any,
-  pythContractAddr,
-  {
-    from: provider.getAddress(0),
-  }
-);
+  const pythPriceListener = new PythPriceListener(connection, priceIds);
 
-const pusher = new Pusher(connection, pythContract, {
-  batchingDuration: argv.batchingDuration,
-  cooldownDuration: argv.cooldownDuration,
-});
+  const handler = new Pusher(
+    connection,
+    network,
+    fs.readFileSync(argv.mnemonicFile).toString().trim(),
+    pythContractAddr,
+    evmPriceListener,
+    pythPriceListener,
+    priceIds,
+    {
+      confidenceRatioThreshold: argv.confidenceRatio,
+      priceDeviationThreshold: argv.priceDeviation,
+      timeDifferenceThreshold: argv.timeDifference,
+      cooldownDuration: argv.cooldownDuration,
+    }
+  );
 
-const querier = new Querier(pythContract);
+  await evmPriceListener.start();
+  await pythPriceListener.start();
+  await handler.start();
+}
 
-const handler = new Handler(pusher, querier, {
-  confidenceRatioThreshold: argv.confidenceRatio,
-  priceDeviationThreshold: argv.priceDeviation,
-  timeDifferenceThreshold: argv.timeDifference,
-});
-
-// Listening to price id updates
-const priceIds = (argv.priceIds as string[]).map(removeLeading0x);
-connection.subscribePriceFeedUpdates(
-  priceIds,
-  handler.onPriceFeedUpdate.bind(handler)
-);
+run();
