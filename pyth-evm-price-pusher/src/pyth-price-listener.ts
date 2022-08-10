@@ -17,6 +17,8 @@ export class PythPriceListener implements PriceListener {
     this.latestPriceInfo = new Map();
   }
 
+  // This method should be awaited on and once it finishes it has the latest value
+  // for the given price feeds (if they exist).
   async start() {
     this.connection.subscribePriceFeedUpdates(
       this.priceIds,
@@ -27,14 +29,17 @@ export class PythPriceListener implements PriceListener {
     priceFeeds?.forEach((priceFeed) => {
       const prevPrice = priceFeed.getPrevPriceUnchecked();
       this.latestPriceInfo.set(priceFeed.id, {
-        price: prevPrice[0],
+        price: prevPrice[0].price,
+        conf: prevPrice[0].conf,
         publishTime: prevPrice[1],
       });
     });
   }
 
   private onNewPriceFeed(priceFeed: PriceFeed) {
-    console.log(`Received new price feed with id ${priceFeed.id}`);
+    console.log(
+      `Received new price feed update from Pyth price service with id ${priceFeed.id}`
+    );
 
     const currentPrice = priceFeed.getCurrentPrice();
     if (currentPrice === undefined) {
@@ -42,7 +47,8 @@ export class PythPriceListener implements PriceListener {
     }
 
     const priceInfo: PriceInfo = {
-      price: currentPrice,
+      conf: currentPrice.conf,
+      price: currentPrice.price,
       publishTime: priceFeed.publishTime,
     };
 

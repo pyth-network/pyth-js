@@ -9,8 +9,8 @@ import HDWalletProvider from "@truffle/hdwallet-provider";
 export class Pusher {
   private connection: EvmPriceServiceConnection;
   private pythContract: Contract;
-  private evmPriceListener: PriceListener;
-  private pythPriceListener: PriceListener;
+  private targetPriceListener: PriceListener;
+  private srcPriceListener: PriceListener;
   private priceIds: HexString[];
 
   private timeDifferenceThreshold: DurationInSeconds;
@@ -23,8 +23,8 @@ export class Pusher {
     evmEndpoint: string,
     mnemonic: string,
     pythContractAddr: string,
-    evmPriceListener: PriceListener,
-    pythPriceListener: PriceListener,
+    targetPriceListener: PriceListener,
+    srcPriceListener: PriceListener,
     priceIds: HexString[],
     config: {
       timeDifferenceThreshold: DurationInSeconds;
@@ -34,8 +34,8 @@ export class Pusher {
     }
   ) {
     this.connection = connection;
-    this.evmPriceListener = evmPriceListener;
-    this.pythPriceListener = pythPriceListener;
+    this.targetPriceListener = targetPriceListener;
+    this.srcPriceListener = srcPriceListener;
     this.priceIds = priceIds;
 
     this.timeDifferenceThreshold = config.timeDifferenceThreshold;
@@ -95,33 +95,39 @@ export class Pusher {
    * @returns True if the on-chain price needs to be updated.
    */
   shouldUpdate(priceId: HexString): boolean {
-    const evmPrice = this.evmPriceListener.getLatestPriceInfo(priceId);
-    const pythPrice = this.pythPriceListener.getLatestPriceInfo(priceId);
+    const targetLatestPrice =
+      this.targetPriceListener.getLatestPriceInfo(priceId);
+    const srcLatestPrice = this.srcPriceListener.getLatestPriceInfo(priceId);
 
-    // There is no price to update the contract with.
-    if (pythPrice === undefined) {
+    // There is no price to update the target with.
+    if (srcLatestPrice === undefined) {
       return false;
     }
 
     // It means that price never existed there. So we should push the latest price feed.
-    if (evmPrice === undefined) {
-      console.log(`${priceId} is not available on EVM. Pushing the price.`);
+    if (targetLatestPrice === undefined) {
+      console.log(
+        `${priceId} is not available on the target network. Pushing the price.`
+      );
       return true;
     }
 
     // The current price is not newer than the price onchain
-    if (pythPrice.publishTime < evmPrice.publishTime) {
+    if (srcLatestPrice.publishTime < targetLatestPrice.publishTime) {
       return false;
     }
 
-    const timeDifference = pythPrice.publishTime - evmPrice.publishTime;
+    const timeDifference =
+      srcLatestPrice.publishTime - targetLatestPrice.publishTime;
 
     const priceDeviationPct =
-      (Math.abs(Number(pythPrice.price.price) - Number(evmPrice.price.price)) /
-        Number(evmPrice.price.price)) *
+      (Math.abs(
+        Number(srcLatestPrice.price) - Number(targetLatestPrice.price)
+      ) /
+        Number(targetLatestPrice.price)) *
       100;
     const confidenceRatioPct = Math.abs(
-      (Number(pythPrice.price.conf) / Number(pythPrice.price.price)) * 100
+      (Number(srcLatestPrice.conf) / Number(srcLatestPrice.price)) * 100
     );
 
     console.log(

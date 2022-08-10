@@ -43,14 +43,23 @@ export class EvmPriceListener implements PriceListener {
     );
   }
 
+  // This method should be awaited on and once it finishes it has the latest value
+  // for the given price feeds (if they exist).
   async start() {
     if (this.isWs) {
+      console.log("Subscribing to the target network pyth contract events...");
       this.startSubscription();
     } else {
+      console.log(
+        "The target network RPC endpoint is not Websocket. Using polling instead..."
+      );
       setInterval(this.pollPrices.bind(this), this.pollingFrequency * 1000);
     }
 
     // Poll the prices to have values in the beginning until updates arrive.
+    console.log(
+      "Polling the prices in the beginning in order to set the initial values."
+    );
     await this.pollPrices();
   }
 
@@ -68,8 +77,8 @@ export class EvmPriceListener implements PriceListener {
     }
   }
 
-  private onPriceFeedUpdate(err: Error | undefined, event: EventData) {
-    if (err === undefined) {
+  private onPriceFeedUpdate(err: Error | null, event: EventData) {
+    if (err !== null) {
       console.error("PriceFeedUpdate EventEmitter received an error.");
       console.error(err);
       return;
@@ -81,9 +90,8 @@ export class EvmPriceListener implements PriceListener {
     );
 
     const priceInfo: PriceInfo = {
-      // We don't have exponent in the event and it is not used within the code
-      // So it is set to 0.
-      price: new Price(event.returnValues.conf, 0, event.returnValues.price),
+      conf: event.returnValues.conf,
+      price: event.returnValues.price,
       publishTime: Number(event.returnValues.publishTime),
     };
 
@@ -138,7 +146,8 @@ export class EvmPriceListener implements PriceListener {
     const prevPrice = priceFeed.getPrevPriceUnchecked();
 
     return {
-      price: prevPrice[0],
+      conf: prevPrice[0].conf,
+      price: prevPrice[0].price,
       publishTime: prevPrice[1],
     };
   }
