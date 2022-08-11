@@ -13,14 +13,16 @@ import { PythPriceListener } from "./pyth-price-listener";
 import * as fs from "fs";
 
 const argv = yargs(hideBin(process.argv))
-  .option("network", {
+  .option("evm-endpoint", {
     description:
-      "RPC of the target EVM network. Use ws[s]:// if you intent to use subscription " +
-      "instead of polling.",
+      "RPC endpoint URL for the EVM network. If you provide a websocket RPC endpoint (`ws[s]://...`), " +
+      "the price pusher will use event subscriptions to read the current EVM price. If you provide " +
+      "a normal HTTP endpoint, the pusher will periodically poll for updates. The polling interval " +
+      "is configurable via the `evm-polling-frequency` command-line argument",
     type: "string",
     required: true,
   })
-  .option("endpoint", {
+  .option("price-endpoint", {
     description:
       "Endpoint URL for the price service. e.g: https://endpoint/example",
     type: "string",
@@ -28,53 +30,56 @@ const argv = yargs(hideBin(process.argv))
   })
   .option("pyth-contract", {
     description:
-      "Pyth contract address. Provide the network name which Pyth is deployed on, " +
-      "or the Pyth contract address if you are using a local network",
+      "Pyth contract address. Provide the network name on which Pyth is deployed " +
+      "or the Pyth contract address if you use a local network.",
     type: "string",
     required: true,
   })
   .option("price-ids", {
     description:
-      "Space separated price feed ids (in hex) to fetch" +
+      "Space separated price feed ids (in hex) to push." +
       " e.g: 0xf9c0172ba10dfa4d19088d...",
     type: "array",
     required: true,
   })
   .option("mnemonic-file", {
-    description: "Payer mnemonic (private key) file",
+    description: "Payer mnemonic (private key) file.",
     type: "string",
     required: true,
   })
   .option("time-difference", {
-    description: "Time difference (in seconds) to push a price feed",
+    description:
+      "Time difference threshold (in seconds) to push a newer price feed.",
     type: "number",
     required: true,
   })
   .option("price-deviation", {
-    description: "Price deviation percent to push a price feed",
+    description:
+      "The price deviation (%) threshold to push a newer price feed.",
     type: "number",
     required: true,
   })
   .option("confidence-ratio", {
-    description: "The confidence/price percent to push a price feed",
+    description:
+      "The confidence/price (%) threshold to push a newer price feed.",
     type: "number",
     required: true,
   })
   .option("cooldown-duration", {
     description:
       "The amount of time (in seconds) to wait between pushing price updates. " +
-      "Should be greater than the block time of the network so one update is not " +
-      "pushed twice.",
+      "This value should be greater than the block time of the network, so this program confirms " +
+      "it is updated and does not push it twice.",
     type: "number",
     required: false,
     default: 10,
   })
   .option("evm-polling-frequency", {
     description:
-      "The frequency to poll price info data from the evm network if the RPC is not a websocket.",
+      "The frequency to poll price info data from the EVM network if the RPC is not a websocket.",
     type: "number",
     required: false,
-    default: 10,
+    default: 5,
   })
   .help()
   .alias("help", "h")
@@ -83,7 +88,7 @@ const argv = yargs(hideBin(process.argv))
   })
   .parseSync();
 
-const network = argv.network;
+const network = argv.evmEndpoint;
 let pythContractAddr: string;
 
 if (CONTRACT_ADDR[argv.pythContract] !== undefined) {
@@ -93,7 +98,7 @@ if (CONTRACT_ADDR[argv.pythContract] !== undefined) {
 }
 
 async function run() {
-  const connection = new EvmPriceServiceConnection(argv.endpoint);
+  const connection = new EvmPriceServiceConnection(argv.priceEndpoint);
 
   const priceIds = (argv.priceIds as string[]).map(removeLeading0x);
 
