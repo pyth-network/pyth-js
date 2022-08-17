@@ -27,11 +27,11 @@ export class PythPriceListener implements PriceListener {
 
     const priceFeeds = await this.connection.getLatestPriceFeeds(this.priceIds);
     priceFeeds?.forEach((priceFeed) => {
-      const prevPrice = priceFeed.getPrevPriceUnchecked();
+      const latestAvailablePrice = priceFeed.getLatestAvailablePriceUnchecked();
       this.latestPriceInfo.set(priceFeed.id, {
-        price: prevPrice[0].price,
-        conf: prevPrice[0].conf,
-        publishTime: prevPrice[1],
+        price: latestAvailablePrice[0].price,
+        conf: latestAvailablePrice[0].conf,
+        publishTime: latestAvailablePrice[1],
       });
     });
   }

@@ -143,12 +143,12 @@ export class EvmPriceListener implements PriceListener {
       prevPublishTime: Number(priceFeedRaw.prevPublishTime),
     });
 
-    const prevPrice = priceFeed.getPrevPriceUnchecked();
+    const latestAvailablePrice = priceFeed.getLatestAvailablePriceUnchecked();
 
     return {
-      conf: prevPrice[0].conf,
-      price: prevPrice[0].price,
-      publishTime: prevPrice[1],
+      conf: latestAvailablePrice[0].conf,
+      price: latestAvailablePrice[0].price,
+      publishTime: latestAvailablePrice[1],
     };
   }
 }
