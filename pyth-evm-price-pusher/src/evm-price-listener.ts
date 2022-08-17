@@ -3,6 +3,7 @@ import { HexString, Price, PriceFeed } from "@pythnetwork/pyth-evm-js";
 import AbstractPythAbi from "@pythnetwork/pyth-sdk-solidity/abis/AbstractPyth.json";
 import Web3 from "web3";
 import { Contract, EventData } from "web3-eth-contract";
+import { PriceConfig } from "./price-config";
 import { PriceInfo, PriceListener } from "./price-listener";
 import {
   addLeading0x,
@@ -17,6 +18,7 @@ export class EvmPriceListener implements PriceListener {
   private pythContract: Contract;
   private latestPriceInfo: Map<HexString, PriceInfo>;
   private priceIds: HexString[];
+  private priceIdToAlias: Map<HexString, string>;
 
   private isWs: boolean;
   private pollingFrequency: DurationInSeconds;
@@ -24,13 +26,16 @@ export class EvmPriceListener implements PriceListener {
   constructor(
     endpoint: string,
     pythContractAddr: string,
-    priceIds: HexString[],
+    priceConfigs: PriceConfig[],
     config: {
       pollingFrequency: DurationInSeconds;
     }
   ) {
     this.latestPriceInfo = new Map();
-    this.priceIds = priceIds;
+    this.priceIds = priceConfigs.map((priceConfig) => priceConfig.id);
+    this.priceIdToAlias = new Map(
+      priceConfigs.map((priceConfig) => [priceConfig.id, priceConfig.alias])
+    );
 
     this.pollingFrequency = config.pollingFrequency;
 
@@ -86,7 +91,9 @@ export class EvmPriceListener implements PriceListener {
 
     const priceId = removeLeading0x(event.returnValues.id);
     console.log(
-      `Received a new Evm PriceFeedUpdate event for price feed with id ${priceId}`
+      `Received a new Evm PriceFeedUpdate event for price feed with id ${priceId} (${this.priceIdToAlias.get(
+        priceId
+      )})`
     );
 
     const priceInfo: PriceInfo = {

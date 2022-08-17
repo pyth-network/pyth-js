@@ -22,12 +22,23 @@ This approach is useful for protocols that already depend on regular push update
 The price pusher service monitors both the off-chain and on-chain Pyth price for a configured set of price feeds.
 It then pushes a price update to an on-chain Pyth contract if any of the following conditions are met:
 
-- Time difference: The on-chain price is older than `time-difference` seconds
+- Time difference: The on-chain price is older than `time_difference` seconds
   from the latest Pyth price.
-- Price deviation: The latest Pyth price feed has changed more than `price-deviation` percent
+- Price deviation: The latest Pyth price feed has changed more than `price_deviation` percent
   from the on-chain price feed price.
 - Confidence ratio: The latest Pyth price feed has confidence to price ratio of more than
-  `confidence-ratio`.
+  `confidence_ratio`.
+
+Parameters above are configured per price feed in a price configuration YAML file. The structure looks like this:
+
+```yaml
+- alias: A/USD # Arbitrary alias for the price feed. It is used in enhance logging.
+  id: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef # id of a price feed, a 32-byte hex string.
+  time_difference: 60 # Time difference threshold (in seconds) to push a newer price feed.
+  price_deviation: 0.5 # The price deviation (%) threshold to push a newer price feed.
+  confidence_ratio: 1 # The confidence/price (%) threshold to push a newer price feed.
+- ...
+```
 
 To run the price pusher, please run the following commands, replacing the command line arguments as necessary:
 
@@ -36,8 +47,7 @@ npm install # Only run it the first time
 
 npm run start -- --evm-endpoint wss://example-rpc.com --mnemonic-file "path/to/mnemonic.txt" \
     --pyth-contract example_network --price-endpoint https://example-pyth-price.com \
-    --time-difference 60 --price-deviation 0.5 --confidence-ratio 5 \
-    --price-ids "abcd..." "efgh..." "..." \
+    --price-config-file "path/to/price-config-file.yaml" \
     [--cooldown-duration 10] \
     [--evm-polling-frequency 5]
 ```
@@ -50,7 +60,7 @@ The program accepts the following command line arguments:
   the price pusher will use event subscriptions to read the current EVM price. If you provide a normal
   HTTP endpoint, the pusher will periodically poll for updates. The polling interval is configurable via
   the `evm-polling-frequency` command-line argument (described below).
-- `mnemonic-file`: Payer mnemonic (private key) file.
+- `mnemonic-file`: Path to payer mnemonic (private key) file.
 - `pyth-contract`: The Pyth contract address. Provide the network name on which Pyth is deployed
   or the Pyth contract address if you use a local network.
   You can find the networks on which pyth is live and their corresponding names
@@ -59,11 +69,7 @@ The program accepts the following command line arguments:
   `https://prices.testnet.pyth.network` for testnet and
   `https://prices.mainnet.pyth.network` for mainnet. It is recommended
   to run a standalone price service for more resiliency.
-- `price-ids`: Space separated price feed ids (in hex) to push. List of available
-  price feeds is available in the [price feed ids page][].
-- `time-difference`: Time difference threshold (in seconds) to push a newer price feed.
-- `price-deviation`: The price deviation (%) threshold to push a newer price feed.
-- `confidence-ratio`: The confidence/price (%) threshold to push a newer price feed.
+- `price-config-file`: Path to price configuration YAML file.
 - `cooldown-duration` (Optional): The amount of time (in seconds) to wait between pushing
   price updates. It should be greater than the block time of the network, so this
   program confirms the price is updated and does not push it twice. Default: 10 seconds.
@@ -80,6 +86,8 @@ For example, to push `BTC/USD` and `BNB/USD` prices on BNB testnet, run the foll
 ```sh
 npm run start -- --evm-endpoint "https://data-seed-prebsc-1-s1.binance.org:8545" --mnemonic-file "path/to/mnemonic.txt" \
   --pyth-contract bnb_testnet --price-endpoint https://prices.testnet.pyth.network \
-  --price-ids "f9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b" "ecf553770d9b10965f8fb64771e93f5690a182edc32be4a3236e0caaa6e0581a" \
-  --time-difference 60 --price-deviation 0.5 --confidence-ratio 1
+  --price-config-file "price-config.testnet.sample.yaml"
 ```
+
+[`price-config.testnet.sample.yaml`](./price-config.testnet.sample.yaml) contains configuration for `BTC/USD`
+and `BNB/USD` price feeds on Pyth testnet.
