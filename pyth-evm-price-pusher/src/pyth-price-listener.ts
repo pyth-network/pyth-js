@@ -46,9 +46,9 @@ export class PythPriceListener implements PriceListener {
 
   private onNewPriceFeed(priceFeed: PriceFeed) {
     console.log(
-      `Received new price feed update from Pyth price service with id ${
+      `Received new price feed update from Pyth price service: ${this.priceIdToAlias.get(
         priceFeed.id
-      } (${this.priceIdToAlias.get(priceFeed.id)})`
+      )} ${priceFeed.id}`
     );
 
     const currentPrice = priceFeed.getCurrentPrice();

@@ -29,7 +29,7 @@ It then pushes a price update to an on-chain Pyth contract if any of the followi
 - Confidence ratio: The latest Pyth price feed has confidence to price ratio of more than
   `confidence_ratio`.
 
-Parameters above are configured per price feed in a price configuration YAML file. The structure looks like this:
+The parameters above are configured per price feed in a price configuration YAML file. The structure looks like this:
 
 ```yaml
 - alias: A/USD # Arbitrary alias for the price feed. It is used in enhance logging.

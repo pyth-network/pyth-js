@@ -75,7 +75,7 @@ export class Pusher {
     console.log(
       "Pushing ",
       pricesToPush.map(
-        (priceConfig) => `${priceConfig.id} (${priceConfig.alias})`
+        (priceConfig) => `${priceConfig.alias} (${priceConfig.id})`
       )
     );
 
@@ -108,7 +108,7 @@ export class Pusher {
     // It means that price never existed there. So we should push the latest price feed.
     if (targetLatestPrice === undefined) {
       console.log(
-        `${priceId} (${priceConfig.alias}) is not available on the target network. Pushing the price.`
+        `${priceConfig.alias} (${priceId}) is not available on the target network. Pushing the price.`
       );
       return true;
     }
@@ -131,7 +131,7 @@ export class Pusher {
       (Number(srcLatestPrice.conf) / Number(srcLatestPrice.price)) * 100
     );
 
-    console.log(`Analyzing price with id ${priceId} (${priceConfig.alias})`);
+    console.log(`Analyzing price ${priceConfig.alias} (${priceId})`);
 
     console.log(
       `Time difference: ${timeDifference} (< ${priceConfig.timeDifference}?)`

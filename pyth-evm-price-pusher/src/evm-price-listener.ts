@@ -91,9 +91,9 @@ export class EvmPriceListener implements PriceListener {
 
     const priceId = removeLeading0x(event.returnValues.id);
     console.log(
-      `Received a new Evm PriceFeedUpdate event for price feed with id ${priceId} (${this.priceIdToAlias.get(
+      `Received a new Evm PriceFeedUpdate event for price feed ${this.priceIdToAlias.get(
         priceId
-      )})`
+      )} (${priceId}).`
     );
 
     const priceInfo: PriceInfo = {
