@@ -6,11 +6,11 @@ import {
   EvmPriceServiceConnection,
   CONTRACT_ADDR,
 } from "@pythnetwork/pyth-evm-js";
-import { removeLeading0x } from "./utils";
 import { Pusher } from "./pusher";
 import { EvmPriceListener } from "./evm-price-listener";
 import { PythPriceListener } from "./pyth-price-listener";
-import * as fs from "fs";
+import fs from "fs";
+import { readPriceConfigFile } from "./price-config";
 
 const argv = yargs(hideBin(process.argv))
   .option("evm-endpoint", {
@@ -35,34 +35,14 @@ const argv = yargs(hideBin(process.argv))
     type: "string",
     required: true,
   })
-  .option("price-ids", {
-    description:
-      "Space separated price feed ids (in hex) to push." +
-      " e.g: 0xf9c0172ba10dfa4d19088d...",
-    type: "array",
-    required: true,
-  })
-  .option("mnemonic-file", {
-    description: "Payer mnemonic (private key) file.",
+  .option("price-config-file", {
+    description: "Path to price configuration YAML file.",
     type: "string",
     required: true,
   })
-  .option("time-difference", {
-    description:
-      "Time difference threshold (in seconds) to push a newer price feed.",
-    type: "number",
-    required: true,
-  })
-  .option("price-deviation", {
-    description:
-      "The price deviation (%) threshold to push a newer price feed.",
-    type: "number",
-    required: true,
-  })
-  .option("confidence-ratio", {
-    description:
-      "The confidence/price (%) threshold to push a newer price feed.",
-    type: "number",
+  .option("mnemonic-file", {
+    description: "Path to payer mnemonic (private key) file.",
+    type: "string",
     required: true,
   })
   .option("cooldown-duration", {
@@ -97,34 +77,31 @@ if (CONTRACT_ADDR[argv.pythContract] !== undefined) {
   pythContractAddr = argv.pythContract;
 }
 
+const priceConfigs = readPriceConfigFile(argv.priceConfigFile);
+
 async function run() {
   const connection = new EvmPriceServiceConnection(argv.priceEndpoint);
-
-  const priceIds = (argv.priceIds as string[]).map(removeLeading0x);
 
   const evmPriceListener = new EvmPriceListener(
     network,
     pythContractAddr,
-    priceIds,
+    priceConfigs,
     {
       pollingFrequency: argv.evmPollingFrequency,
     }
   );
 
-  const pythPriceListener = new PythPriceListener(connection, priceIds);
+  const pythPriceListener = new PythPriceListener(connection, priceConfigs);
 
   const handler = new Pusher(
     connection,
     network,
-    fs.readFileSync(argv.mnemonicFile).toString().trim(),
+    fs.readFileSync(argv.mnemonicFile, "utf-8").trim(),
     pythContractAddr,
     evmPriceListener,
     pythPriceListener,
-    priceIds,
+    priceConfigs,
     {
-      confidenceRatioThreshold: argv.confidenceRatio,
-      priceDeviationThreshold: argv.priceDeviation,
-      timeDifferenceThreshold: argv.timeDifference,
       cooldownDuration: argv.cooldownDuration,
     }
   );

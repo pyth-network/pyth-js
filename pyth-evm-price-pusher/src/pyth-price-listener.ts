@@ -2,18 +2,25 @@ import {
   EvmPriceServiceConnection,
   HexString,
   PriceFeed,
-  PriceStatus,
 } from "@pythnetwork/pyth-evm-js";
+import { PriceConfig } from "./price-config";
 import { PriceInfo, PriceListener } from "./price-listener";
 
 export class PythPriceListener implements PriceListener {
   private connection: EvmPriceServiceConnection;
   private priceIds: HexString[];
+  private priceIdToAlias: Map<HexString, string>;
   private latestPriceInfo: Map<HexString, PriceInfo>;
 
-  constructor(connection: EvmPriceServiceConnection, priceIds: HexString[]) {
+  constructor(
+    connection: EvmPriceServiceConnection,
+    priceConfigs: PriceConfig[]
+  ) {
     this.connection = connection;
-    this.priceIds = priceIds;
+    this.priceIds = priceConfigs.map((priceConfig) => priceConfig.id);
+    this.priceIdToAlias = new Map(
+      priceConfigs.map((priceConfig) => [priceConfig.id, priceConfig.alias])
+    );
     this.latestPriceInfo = new Map();
   }
 
@@ -27,18 +34,20 @@ export class PythPriceListener implements PriceListener {
 
     const priceFeeds = await this.connection.getLatestPriceFeeds(this.priceIds);
     priceFeeds?.forEach((priceFeed) => {
-      const prevPrice = priceFeed.getPrevPriceUnchecked();
+      const latestAvailablePrice = priceFeed.getLatestAvailablePriceUnchecked();
       this.latestPriceInfo.set(priceFeed.id, {
-        price: prevPrice[0].price,
-        conf: prevPrice[0].conf,
-        publishTime: prevPrice[1],
+        price: latestAvailablePrice[0].price,
+        conf: latestAvailablePrice[0].conf,
+        publishTime: latestAvailablePrice[1],
       });
     });
   }
 
   private onNewPriceFeed(priceFeed: PriceFeed) {
     console.log(
-      `Received new price feed update from Pyth price service with id ${priceFeed.id}`
+      `Received new price feed update from Pyth price service: ${this.priceIdToAlias.get(
+        priceFeed.id
+      )} ${priceFeed.id}`
     );
 
     const currentPrice = priceFeed.getCurrentPrice();

@@ -1,21 +1,19 @@
-import { EvmPriceServiceConnection, HexString } from "@pythnetwork/pyth-evm-js";
-import { DurationInSeconds, PctNumber, sleep } from "./utils";
+import { EvmPriceServiceConnection } from "@pythnetwork/pyth-evm-js";
+import { DurationInSeconds, sleep } from "./utils";
 import { PriceListener } from "./price-listener";
 import { Contract } from "web3-eth-contract";
 import AbstractPythAbi from "@pythnetwork/pyth-sdk-solidity/abis/AbstractPyth.json";
 import Web3 from "web3";
 import HDWalletProvider from "@truffle/hdwallet-provider";
+import { PriceConfig } from "./price-config";
 
 export class Pusher {
   private connection: EvmPriceServiceConnection;
   private pythContract: Contract;
   private targetPriceListener: PriceListener;
   private srcPriceListener: PriceListener;
-  private priceIds: HexString[];
+  private priceConfigs: PriceConfig[];
 
-  private timeDifferenceThreshold: DurationInSeconds;
-  private priceDeviationThreshold: PctNumber;
-  private confidenceRatioThreshold: PctNumber;
   private cooldownDuration: DurationInSeconds;
 
   constructor(
@@ -25,22 +23,16 @@ export class Pusher {
     pythContractAddr: string,
     targetPriceListener: PriceListener,
     srcPriceListener: PriceListener,
-    priceIds: HexString[],
+    priceConfigs: PriceConfig[],
     config: {
-      timeDifferenceThreshold: DurationInSeconds;
-      priceDeviationThreshold: PctNumber;
-      confidenceRatioThreshold: PctNumber;
       cooldownDuration: DurationInSeconds;
     }
   ) {
     this.connection = connection;
     this.targetPriceListener = targetPriceListener;
     this.srcPriceListener = srcPriceListener;
-    this.priceIds = priceIds;
+    this.priceConfigs = priceConfigs;
 
-    this.timeDifferenceThreshold = config.timeDifferenceThreshold;
-    this.priceDeviationThreshold = config.priceDeviationThreshold;
-    this.confidenceRatioThreshold = config.confidenceRatioThreshold;
     this.cooldownDuration = config.cooldownDuration;
 
     const provider = new HDWalletProvider({
@@ -62,23 +54,30 @@ export class Pusher {
   }
 
   async start() {
-    while (true) {
-      const pricesToPush = this.priceIds.filter(this.shouldUpdate.bind(this));
+    for (;;) {
+      const pricesToPush = this.priceConfigs.filter(
+        this.shouldUpdate.bind(this)
+      );
       this.pushUpdates(pricesToPush);
       await sleep(this.cooldownDuration * 1000);
     }
   }
 
-  async pushUpdates(pricesToPush: HexString[]) {
+  async pushUpdates(pricesToPush: PriceConfig[]) {
     if (pricesToPush.length === 0) {
       return;
     }
 
     const priceFeedUpdateData = await this.connection.getPriceFeedsUpdateData(
-      pricesToPush
+      pricesToPush.map((priceConfig) => priceConfig.id)
     );
 
-    console.log("Pushing ", pricesToPush);
+    console.log(
+      "Pushing ",
+      pricesToPush.map(
+        (priceConfig) => `${priceConfig.alias} (${priceConfig.id})`
+      )
+    );
 
     this.pythContract.methods
       .updatePriceFeeds(priceFeedUpdateData)
@@ -91,10 +90,12 @@ export class Pusher {
   /**
    * Checks whether on-chain price needs to be updated with the latest pyth price information.
    *
-   * @param priceId Id of the price feed to check
+   * @param priceConfig Config of the price feed to check
    * @returns True if the on-chain price needs to be updated.
    */
-  shouldUpdate(priceId: HexString): boolean {
+  shouldUpdate(priceConfig: PriceConfig): boolean {
+    const priceId = priceConfig.id;
+
     const targetLatestPrice =
       this.targetPriceListener.getLatestPriceInfo(priceId);
     const srcLatestPrice = this.srcPriceListener.getLatestPriceInfo(priceId);
@@ -107,7 +108,7 @@ export class Pusher {
     // It means that price never existed there. So we should push the latest price feed.
     if (targetLatestPrice === undefined) {
       console.log(
-        `${priceId} is not available on the target network. Pushing the price.`
+        `${priceConfig.alias} (${priceId}) is not available on the target network. Pushing the price.`
       );
       return true;
     }
@@ -130,24 +131,26 @@ export class Pusher {
       (Number(srcLatestPrice.conf) / Number(srcLatestPrice.price)) * 100
     );
 
+    console.log(`Analyzing price ${priceConfig.alias} (${priceId})`);
+
     console.log(
-      `Time difference: ${timeDifference} (< ${this.timeDifferenceThreshold}?)`
+      `Time difference: ${timeDifference} (< ${priceConfig.timeDifference}?)`
     );
     console.log(
       `Price deviation: ${priceDeviationPct.toFixed(5)}% (< ${
-        this.priceDeviationThreshold
+        priceConfig.priceDeviation
       }%?)`
     );
     console.log(
       `Confidence ratio: ${confidenceRatioPct.toFixed(5)}% (< ${
-        this.confidenceRatioThreshold
+        priceConfig.confidenceRatio
       }%?)`
     );
 
     const result =
-      timeDifference >= this.timeDifferenceThreshold ||
-      priceDeviationPct >= this.priceDeviationThreshold ||
-      confidenceRatioPct >= this.confidenceRatioThreshold;
+      timeDifference >= priceConfig.timeDifference ||
+      priceDeviationPct >= priceConfig.priceDeviation ||
+      confidenceRatioPct >= priceConfig.confidenceRatio;
 
     if (result == true) {
       console.log(

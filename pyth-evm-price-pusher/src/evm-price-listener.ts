@@ -1,15 +1,15 @@
-import { HexString, Price, PriceFeed } from "@pythnetwork/pyth-evm-js";
+import { HexString, PriceFeed } from "@pythnetwork/pyth-evm-js";
 
 import AbstractPythAbi from "@pythnetwork/pyth-sdk-solidity/abis/AbstractPyth.json";
 import Web3 from "web3";
 import { Contract, EventData } from "web3-eth-contract";
+import { PriceConfig } from "./price-config";
 import { PriceInfo, PriceListener } from "./price-listener";
 import {
   addLeading0x,
   DurationInSeconds,
   isWsEndpoint,
   removeLeading0x,
-  sleep,
   statusNumberToEnum,
 } from "./utils";
 
@@ -17,6 +17,7 @@ export class EvmPriceListener implements PriceListener {
   private pythContract: Contract;
   private latestPriceInfo: Map<HexString, PriceInfo>;
   private priceIds: HexString[];
+  private priceIdToAlias: Map<HexString, string>;
 
   private isWs: boolean;
   private pollingFrequency: DurationInSeconds;
@@ -24,13 +25,16 @@ export class EvmPriceListener implements PriceListener {
   constructor(
     endpoint: string,
     pythContractAddr: string,
-    priceIds: HexString[],
+    priceConfigs: PriceConfig[],
     config: {
       pollingFrequency: DurationInSeconds;
     }
   ) {
     this.latestPriceInfo = new Map();
-    this.priceIds = priceIds;
+    this.priceIds = priceConfigs.map((priceConfig) => priceConfig.id);
+    this.priceIdToAlias = new Map(
+      priceConfigs.map((priceConfig) => [priceConfig.id, priceConfig.alias])
+    );
 
     this.pollingFrequency = config.pollingFrequency;
 
@@ -64,7 +68,7 @@ export class EvmPriceListener implements PriceListener {
   }
 
   private async startSubscription() {
-    for (let priceId of this.priceIds) {
+    for (const priceId of this.priceIds) {
       this.pythContract.events.PriceFeedUpdate(
         {
           filter: {
@@ -86,7 +90,9 @@ export class EvmPriceListener implements PriceListener {
 
     const priceId = removeLeading0x(event.returnValues.id);
     console.log(
-      `Received a new Evm PriceFeedUpdate event for price feed with id ${priceId}`
+      `Received a new Evm PriceFeedUpdate event for price feed ${this.priceIdToAlias.get(
+        priceId
+      )} (${priceId}).`
     );
 
     const priceInfo: PriceInfo = {
@@ -100,7 +106,7 @@ export class EvmPriceListener implements PriceListener {
 
   private async pollPrices() {
     console.log("Polling evm prices...");
-    for (let priceId of this.priceIds) {
+    for (const priceId of this.priceIds) {
       const currentPriceInfo = await this.getOnChainPriceInfo(priceId);
       if (currentPriceInfo !== undefined) {
         this.latestPriceInfo.set(priceId, currentPriceInfo);
@@ -143,12 +149,12 @@ export class EvmPriceListener implements PriceListener {
       prevPublishTime: Number(priceFeedRaw.prevPublishTime),
     });
 
-    const prevPrice = priceFeed.getPrevPriceUnchecked();
+    const latestAvailablePrice = priceFeed.getLatestAvailablePriceUnchecked();
 
     return {
-      conf: prevPrice[0].conf,
-      price: prevPrice[0].price,
-      publishTime: prevPrice[1],
+      conf: latestAvailablePrice[0].conf,
+      price: latestAvailablePrice[0].price,
+      publishTime: latestAvailablePrice[1],
     };
   }
 }
