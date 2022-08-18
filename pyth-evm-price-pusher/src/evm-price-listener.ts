@@ -1,4 +1,4 @@
-import { HexString, Price, PriceFeed } from "@pythnetwork/pyth-evm-js";
+import { HexString, PriceFeed } from "@pythnetwork/pyth-evm-js";
 
 import AbstractPythAbi from "@pythnetwork/pyth-sdk-solidity/abis/AbstractPyth.json";
 import Web3 from "web3";
@@ -10,7 +10,6 @@ import {
   DurationInSeconds,
   isWsEndpoint,
   removeLeading0x,
-  sleep,
   statusNumberToEnum,
 } from "./utils";
 
@@ -69,7 +68,7 @@ export class EvmPriceListener implements PriceListener {
   }
 
   private async startSubscription() {
-    for (let priceId of this.priceIds) {
+    for (const priceId of this.priceIds) {
       this.pythContract.events.PriceFeedUpdate(
         {
           filter: {
@@ -107,7 +106,7 @@ export class EvmPriceListener implements PriceListener {
 
   private async pollPrices() {
     console.log("Polling evm prices...");
-    for (let priceId of this.priceIds) {
+    for (const priceId of this.priceIds) {
       const currentPriceInfo = await this.getOnChainPriceInfo(priceId);
       if (currentPriceInfo !== undefined) {
         this.latestPriceInfo.set(priceId, currentPriceInfo);

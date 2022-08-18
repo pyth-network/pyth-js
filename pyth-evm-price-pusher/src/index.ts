@@ -6,7 +6,6 @@ import {
   EvmPriceServiceConnection,
   CONTRACT_ADDR,
 } from "@pythnetwork/pyth-evm-js";
-import { removeLeading0x } from "./utils";
 import { Pusher } from "./pusher";
 import { EvmPriceListener } from "./evm-price-listener";
 import { PythPriceListener } from "./pyth-price-listener";

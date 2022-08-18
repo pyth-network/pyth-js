@@ -2,7 +2,6 @@ import {
   EvmPriceServiceConnection,
   HexString,
   PriceFeed,
-  PriceStatus,
 } from "@pythnetwork/pyth-evm-js";
 import { PriceConfig } from "./price-config";
 import { PriceInfo, PriceListener } from "./price-listener";

@@ -1,5 +1,5 @@
-import { EvmPriceServiceConnection, HexString } from "@pythnetwork/pyth-evm-js";
-import { DurationInSeconds, PctNumber, sleep } from "./utils";
+import { EvmPriceServiceConnection } from "@pythnetwork/pyth-evm-js";
+import { DurationInSeconds, sleep } from "./utils";
 import { PriceListener } from "./price-listener";
 import { Contract } from "web3-eth-contract";
 import AbstractPythAbi from "@pythnetwork/pyth-sdk-solidity/abis/AbstractPyth.json";
@@ -54,7 +54,7 @@ export class Pusher {
   }
 
   async start() {
-    while (true) {
+    for (;;) {
       const pricesToPush = this.priceConfigs.filter(
         this.shouldUpdate.bind(this)
       );
