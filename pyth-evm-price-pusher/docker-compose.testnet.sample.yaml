@@ -31,17 +31,20 @@ services:
   price-pusher:
     build:
       context: .
-    #image: public.ecr.aws/pyth-network/xc-evm-price-pusher:v<version> # you can use a released image instead of building it.
+    # Uncomment this line (and comment out the above lines) to use a prebuilt image. Replace <version>
+    # with the latest released image of the EVM price pusher from this repo release page:
+    # https://github.com/pyth-network/pyth-js/releases
+    # image: public.ecr.aws/pyth-network/xc-evm-price-pusher:v<version>
     restart: always
     command:
       - "--"
       - "--evm-endpoint"
-      # RPC endpoint URL for the EVM network.
+      # Replace this with RPC endpoint URL for the EVM network.
       - "https://data-seed-prebsc-1-s1.binance.org:8545"
       - "--mnemonic-file"
       - "/mnemonic"
       - "--pyth-contract"
-      # The Pyth contract address. Provide the network name on which Pyth is deployed
+      # Replace this with the Pyth contract address. Provide the network name on which Pyth is deployed
       # or the Pyth contract address if you use a local network
       - "bnb_testnet"
       - "--price-endpoint"

@@ -98,13 +98,13 @@ and `BNB/USD` price feeds on Pyth testnet.
 
 ## Running using a standalone price service (via docker-compose)
 
-EVM price pusher communicates with [Pyth price service][] to get the most recent price updates.
+EVM price pusher communicates with [Pyth price service][] to get the most recent price updates. Pyth price service listens to the
+Wormhole network to get latest price updates, and serves REST and websocket APIs for consumers to fetch the updates. 
 Pyth hosts public endpoints for the price service; however, it is recommended to run it standalone to achieve more resiliency and
 scalability.
 
-This directory contains a sample testnet [docker compose file](./docker-compose.testnet.sample.yaml) that runs a price service, a spy,
-and an EVM price pusher together as a standalone service. Price service depends on a Wormhole spy service. A spy listens to the
-wormhole network and reports all Pyth-related wormhole messages to the price service.
+This directory contains a sample testnet [docker compose file](./docker-compose.testnet.sample.yaml) that runs a EVM price pusher and all of its dependencies, including a price service and a Wormhole spy. A price service depends on a Wormhole spy. A spy listens to the
+Wormhole network and reports all Pyth-related Wormhole messages to the price service.
 
 To run the services via docker-compose, please modify the sample docker-compose file to adjust
 the path to your mnemonic file, the path to your price configuration file, the EVM endpoint, and the Pyth contract address
