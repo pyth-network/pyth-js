@@ -40,6 +40,9 @@ The parameters above are configured per price feed in a price configuration YAML
 - ...
 ```
 
+You can get the list of available price feeds from
+[here](https://pyth.network/developers/price-feed-ids/#pyth-cross-chain-testnet).
+
 To run the price pusher, please run the following commands, replacing the command line arguments as necessary:
 
 ```sh
@@ -50,6 +53,9 @@ npm run start -- --evm-endpoint wss://example-rpc.com --mnemonic-file "path/to/m
     --price-config-file "path/to/price-config-file.yaml" \
     [--cooldown-duration 10] \
     [--evm-polling-frequency 5]
+
+# Or, run the price pusher docker image instead of building from the source
+docker run public.ecr.aws/pyth-network/xc-evm-price-pusher:v<version> -- <above-arguments>
 ```
 
 ### Command Line Arguments
@@ -77,8 +83,6 @@ The program accepts the following command line arguments:
   if the RPC is not a Websocket. It has no effect if the RPC is a Websocket.
   Default: 5 seconds.
 
-[price feed ids page]: https://pyth.network/developers/price-feed-ids/#pyth-cross-chain-testnet
-
 ### Example
 
 For example, to push `BTC/USD` and `BNB/USD` prices on BNB testnet, run the following command:
@@ -91,3 +95,27 @@ npm run start -- --evm-endpoint "https://data-seed-prebsc-1-s1.binance.org:8545"
 
 [`price-config.testnet.sample.yaml`](./price-config.testnet.sample.yaml) contains configuration for `BTC/USD`
 and `BNB/USD` price feeds on Pyth testnet.
+
+## Running using a standalone price service (via docker-compose)
+
+EVM price pusher communicates with [Pyth price service][] to get the most recent price updates. Pyth price service listens to the
+Wormhole network to get latest price updates, and serves REST and websocket APIs for consumers to fetch the updates.
+Pyth hosts public endpoints for the price service; however, it is recommended to run it standalone to achieve more resiliency and
+scalability.
+
+This directory contains a sample testnet [docker compose file](./docker-compose.testnet.sample.yaml) that runs a EVM price pusher and all of its dependencies, including a price service and a Wormhole spy. A price service depends on a Wormhole spy. A spy listens to the
+Wormhole network and reports all Pyth-related Wormhole messages to the price service.
+
+To run the services via docker-compose, please modify the sample docker-compose file to adjust
+the path to your mnemonic file, the path to your price configuration file, the EVM endpoint, and the Pyth contract address
+as necessary.
+
+Then, start the docker-compose like this:
+
+```
+docker-compose -f docker-compose.testnet.sample.yaml up
+```
+
+It will take a few minutes until all the services are up and running.
+
+[pyth price service]: https://github.com/pyth-network/pyth-crosschain/tree/main/third_party/pyth/price-service
