@@ -2,13 +2,14 @@ import {
   EvmPriceServiceConnection,
   UnixTimestamp,
 } from "@pythnetwork/pyth-evm-js";
-import { DurationInSeconds, sleep } from "./utils";
+import { addLeading0x, DurationInSeconds, sleep } from "./utils";
 import { PriceInfo, PriceListener } from "./price-listener";
 import { Contract } from "web3-eth-contract";
 import AbstractPythAbi from "@pythnetwork/pyth-sdk-solidity/abis/AbstractPyth.json";
 import Web3 from "web3";
 import HDWalletProvider from "@truffle/hdwallet-provider";
 import { PriceConfig } from "./price-config";
+import { TransactionReceipt } from "ethereum-protocol";
 
 export class Pusher {
   private connection: EvmPriceServiceConnection;
@@ -73,7 +74,7 @@ export class Pusher {
           this.shouldUpdate(priceConfig, sourceLatestPrice, targetLatestPrice)
         ) {
           pricesToPush.push(priceConfig);
-          pubTimesToPush.push(targetLatestPrice?.publishTime || 0 + 1);
+          pubTimesToPush.push((targetLatestPrice?.publishTime || 0) + 1);
         }
       }
       this.pushUpdates(pricesToPush, pubTimesToPush);
@@ -86,13 +87,16 @@ export class Pusher {
   // and will help multiple price pushers to have consistent behaviour.
   async pushUpdates(
     pricesToPush: PriceConfig[],
-    pubTimesToPush: UnixTimestamp[]
+    pubTimesToPush: UnixTimestamp[],
+    newPriceFeed?: boolean
   ) {
     if (pricesToPush.length === 0) {
       return;
     }
 
-    const priceIds = pricesToPush.map((priceConfig) => priceConfig.id);
+    const priceIds = pricesToPush.map((priceConfig) =>
+      addLeading0x(priceConfig.id)
+    );
 
     const priceFeedUpdateData = await this.connection.getPriceFeedsUpdateData(
       priceIds
@@ -105,24 +109,68 @@ export class Pusher {
       )
     );
 
-    try {
-      this.pythContract.methods
+    let promEventEmitter;
+
+    if (newPriceFeed === true) {
+      promEventEmitter = this.pythContract.methods
+        .updatePriceFeeds(priceFeedUpdateData)
+        .send();
+    } else {
+      promEventEmitter = this.pythContract.methods
         .updatePriceFeedsIfNecessary(
           priceFeedUpdateData,
           priceIds,
           pubTimesToPush
         )
-        .send()
-        .on("transactionHash", (hash: string) => {
-          console.log(`Tx hash: ${hash}`);
-        });
-    } catch (e: any) {
-      // non existing price (send without check)
-      // all updated => ignore
-      // imbalance => error, move on
-      // otherwise => log, move on
-      console.error(e);
+        .send();
     }
+
+    promEventEmitter
+      .on("transactionHash", (hash: string) => {
+        console.log(`Successful. Tx hash: ${hash}`);
+      })
+      .on("error", (err: Error, receipt: TransactionReceipt) => {
+        if (
+          err.message.includes(
+            "revert no price feed found for the given price id"
+          )
+        ) {
+          console.log(
+            "Some price feeds are new and not in the contract. Using updatePriceFeeds method..."
+          );
+          this.pushUpdates(pricesToPush, pubTimesToPush, true);
+          return;
+        }
+
+        if (
+          err.message.includes(
+            "no prices in the submitted batch have fresh prices, so this update will have no effect"
+          )
+        ) {
+          console.log(
+            "The target chain price has already updated, Skipping update"
+          );
+          return;
+        }
+
+        if (err.message.includes("the tx doesn't have the correct nonce.")) {
+          console.log(
+            "Multiple users are using the same accounts and nonce is incorrect. Skipping update"
+          );
+          return;
+        }
+
+        if (
+          err.message.includes("sender doesn't have enough funds to send tx.")
+        ) {
+          console.error("Payer is out of balance, please top it up.");
+          throw err;
+        }
+
+        console.error("An unidentified error has occured:");
+        console.error(err, receipt);
+        console.error("Skipping the update.");
+      });
   }
 
   /**
