@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@pythnetwork/pyth-evm-js": "^0.5.0",
-    "@pythnetwork/pyth-sdk-solidity": "^0.4.0",
+    "@pythnetwork/pyth-sdk-solidity": "^0.5.1",
     "@truffle/hdwallet-provider": "^2.0.8",
     "joi": "^17.6.0",
     "web3": "^1.5.3",
