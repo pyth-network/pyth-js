@@ -87,8 +87,7 @@ export class Pusher {
   // and will help multiple price pushers to have consistent behaviour.
   async pushUpdates(
     pricesToPush: PriceConfig[],
-    pubTimesToPush: UnixTimestamp[],
-    newPriceFeed?: boolean
+    pubTimesToPush: UnixTimestamp[]
   ) {
     if (pricesToPush.length === 0) {
       return;
@@ -109,39 +108,17 @@ export class Pusher {
       )
     );
 
-    let promEventEmitter;
-
-    if (newPriceFeed === true) {
-      promEventEmitter = this.pythContract.methods
-        .updatePriceFeeds(priceFeedUpdateData)
-        .send();
-    } else {
-      promEventEmitter = this.pythContract.methods
-        .updatePriceFeedsIfNecessary(
-          priceFeedUpdateData,
-          priceIds,
-          pubTimesToPush
-        )
-        .send();
-    }
-
-    promEventEmitter
+    this.pythContract.methods
+      .updatePriceFeedsIfNecessary(
+        priceFeedUpdateData,
+        priceIds,
+        pubTimesToPush
+      )
+      .send()
       .on("transactionHash", (hash: string) => {
         console.log(`Successful. Tx hash: ${hash}`);
       })
       .on("error", (err: Error, receipt: TransactionReceipt) => {
-        if (
-          err.message.includes(
-            "revert no price feed found for the given price id"
-          )
-        ) {
-          console.log(
-            "Some price feeds are new and not in the contract. Using updatePriceFeeds method..."
-          );
-          this.pushUpdates(pricesToPush, pubTimesToPush, true);
-          return;
-        }
-
         if (
           err.message.includes(
             "no prices in the submitted batch have fresh prices, so this update will have no effect"
