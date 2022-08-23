@@ -148,14 +148,14 @@ export class Pusher {
           )
         ) {
           console.log(
-            "The target chain price has already updated, Skipping update"
+            "The target chain price has already updated, Skipping this push."
           );
           return;
         }
 
         if (err.message.includes("the tx doesn't have the correct nonce.")) {
           console.log(
-            "Multiple users are using the same accounts and nonce is incorrect. Skipping update"
+            "Multiple users are using the same accounts and nonce is incorrect. Skipping this push."
           );
           return;
         }
@@ -169,7 +169,7 @@ export class Pusher {
 
         console.error("An unidentified error has occured:");
         console.error(err, receipt);
-        console.error("Skipping the update.");
+        console.error("Skipping this push.");
       });
   }
 
