@@ -1,6 +1,9 @@
-import { EvmPriceServiceConnection } from "@pythnetwork/pyth-evm-js";
+import {
+  EvmPriceServiceConnection,
+  UnixTimestamp,
+} from "@pythnetwork/pyth-evm-js";
 import { DurationInSeconds, sleep } from "./utils";
-import { PriceListener } from "./price-listener";
+import { PriceInfo, PriceListener } from "./price-listener";
 import { Contract } from "web3-eth-contract";
 import AbstractPythAbi from "@pythnetwork/pyth-sdk-solidity/abis/AbstractPyth.json";
 import Web3 from "web3";
@@ -11,7 +14,7 @@ export class Pusher {
   private connection: EvmPriceServiceConnection;
   private pythContract: Contract;
   private targetPriceListener: PriceListener;
-  private srcPriceListener: PriceListener;
+  private sourcePriceListener: PriceListener;
   private priceConfigs: PriceConfig[];
 
   private cooldownDuration: DurationInSeconds;
@@ -22,7 +25,7 @@ export class Pusher {
     mnemonic: string,
     pythContractAddr: string,
     targetPriceListener: PriceListener,
-    srcPriceListener: PriceListener,
+    sourcePriceListener: PriceListener,
     priceConfigs: PriceConfig[],
     config: {
       cooldownDuration: DurationInSeconds;
@@ -30,7 +33,7 @@ export class Pusher {
   ) {
     this.connection = connection;
     this.targetPriceListener = targetPriceListener;
-    this.srcPriceListener = srcPriceListener;
+    this.sourcePriceListener = sourcePriceListener;
     this.priceConfigs = priceConfigs;
 
     this.cooldownDuration = config.cooldownDuration;
@@ -55,21 +58,44 @@ export class Pusher {
 
   async start() {
     for (;;) {
-      const pricesToPush = this.priceConfigs.filter(
-        this.shouldUpdate.bind(this)
-      );
-      this.pushUpdates(pricesToPush);
+      const pricesToPush: PriceConfig[] = [];
+      const pubTimesToPush: UnixTimestamp[] = [];
+
+      for (const priceConfig of this.priceConfigs) {
+        const priceId = priceConfig.id;
+
+        const targetLatestPrice =
+          this.targetPriceListener.getLatestPriceInfo(priceId);
+        const sourceLatestPrice =
+          this.sourcePriceListener.getLatestPriceInfo(priceId);
+
+        if (
+          this.shouldUpdate(priceConfig, sourceLatestPrice, targetLatestPrice)
+        ) {
+          pricesToPush.push(priceConfig);
+          pubTimesToPush.push(targetLatestPrice?.publishTime || 0 + 1);
+        }
+      }
+      this.pushUpdates(pricesToPush, pubTimesToPush);
       await sleep(this.cooldownDuration * 1000);
     }
   }
 
-  async pushUpdates(pricesToPush: PriceConfig[]) {
+  // The pubTimes are passed here to use the values that triggered the push.
+  // This is an optimization to avoid getting a newer value (as an update comes)
+  // and will help multiple price pushers to have consistent behaviour.
+  async pushUpdates(
+    pricesToPush: PriceConfig[],
+    pubTimesToPush: UnixTimestamp[]
+  ) {
     if (pricesToPush.length === 0) {
       return;
     }
 
+    const priceIds = pricesToPush.map((priceConfig) => priceConfig.id);
+
     const priceFeedUpdateData = await this.connection.getPriceFeedsUpdateData(
-      pricesToPush.map((priceConfig) => priceConfig.id)
+      priceIds
     );
 
     console.log(
@@ -79,12 +105,24 @@ export class Pusher {
       )
     );
 
-    this.pythContract.methods
-      .updatePriceFeeds(priceFeedUpdateData)
-      .send()
-      .on("transactionHash", (hash: string) => {
-        console.log(`Tx hash: ${hash}`);
-      });
+    try {
+      this.pythContract.methods
+        .updatePriceFeedsIfNecessary(
+          priceFeedUpdateData,
+          priceIds,
+          pubTimesToPush
+        )
+        .send()
+        .on("transactionHash", (hash: string) => {
+          console.log(`Tx hash: ${hash}`);
+        });
+    } catch (e: any) {
+      // non existing price (send without check)
+      // all updated => ignore
+      // imbalance => error, move on
+      // otherwise => log, move on
+      console.error(e);
+    }
   }
 
   /**
@@ -93,15 +131,15 @@ export class Pusher {
    * @param priceConfig Config of the price feed to check
    * @returns True if the on-chain price needs to be updated.
    */
-  shouldUpdate(priceConfig: PriceConfig): boolean {
+  shouldUpdate(
+    priceConfig: PriceConfig,
+    sourceLatestPrice: PriceInfo | undefined,
+    targetLatestPrice: PriceInfo | undefined
+  ): boolean {
     const priceId = priceConfig.id;
 
-    const targetLatestPrice =
-      this.targetPriceListener.getLatestPriceInfo(priceId);
-    const srcLatestPrice = this.srcPriceListener.getLatestPriceInfo(priceId);
-
     // There is no price to update the target with.
-    if (srcLatestPrice === undefined) {
+    if (sourceLatestPrice === undefined) {
       return false;
     }
 
@@ -114,21 +152,21 @@ export class Pusher {
     }
 
     // The current price is not newer than the price onchain
-    if (srcLatestPrice.publishTime < targetLatestPrice.publishTime) {
+    if (sourceLatestPrice.publishTime < targetLatestPrice.publishTime) {
       return false;
     }
 
     const timeDifference =
-      srcLatestPrice.publishTime - targetLatestPrice.publishTime;
+      sourceLatestPrice.publishTime - targetLatestPrice.publishTime;
 
     const priceDeviationPct =
       (Math.abs(
-        Number(srcLatestPrice.price) - Number(targetLatestPrice.price)
+        Number(sourceLatestPrice.price) - Number(targetLatestPrice.price)
       ) /
         Number(targetLatestPrice.price)) *
       100;
     const confidenceRatioPct = Math.abs(
-      (Number(srcLatestPrice.conf) / Number(srcLatestPrice.price)) * 100
+      (Number(sourceLatestPrice.conf) / Number(sourceLatestPrice.price)) * 100
     );
 
     console.log(`Analyzing price ${priceConfig.alias} (${priceId})`);
