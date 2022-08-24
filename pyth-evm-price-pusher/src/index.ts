@@ -80,7 +80,9 @@ if (CONTRACT_ADDR[argv.pythContract] !== undefined) {
 const priceConfigs = readPriceConfigFile(argv.priceConfigFile);
 
 async function run() {
-  const connection = new EvmPriceServiceConnection(argv.priceEndpoint);
+  const connection = new EvmPriceServiceConnection(argv.priceEndpoint, {
+    logger: console,
+  });
 
   const evmPriceListener = new EvmPriceListener(
     network,
