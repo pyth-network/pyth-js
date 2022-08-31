@@ -1,6 +1,6 @@
 services:
   spy:
-    image: ghcr.io/certusone/guardiand:v2.8.8.1
+    image: ghcr.io/wormhole-foundation/guardiand:v2.8.10.1
     command:
       - "spy"
       - "--nodeKey"
