@@ -72,8 +72,8 @@ The program accepts the following command line arguments:
   You can find the networks on which pyth is live and their corresponding names
   [here](../pyth-evm-js/src/index.ts#L13). An example is `bnb_testnet`.
 - `price-endpoint`: Endpoint URL for the price service. You can use
-  `https://prices.testnet.pyth.network` for testnet and
-  `https://prices.mainnet.pyth.network` for mainnet. It is recommended
+  `https://xc-testnet.pyth.network` for testnet and
+  `https://xc-mainnet.pyth.network` for mainnet. It is recommended
   to run a standalone price service for more resiliency.
 - `price-config-file`: Path to price configuration YAML file.
 - `cooldown-duration` (Optional): The amount of time (in seconds) to wait between pushing
@@ -89,7 +89,7 @@ For example, to push `BTC/USD` and `BNB/USD` prices on BNB testnet, run the foll
 
 ```sh
 npm run start -- --evm-endpoint "https://data-seed-prebsc-1-s1.binance.org:8545" --mnemonic-file "path/to/mnemonic.txt" \
-  --pyth-contract bnb_testnet --price-endpoint https://prices.testnet.pyth.network \
+  --pyth-contract bnb_testnet --price-endpoint https://xc-testnet.pyth.network \
   --price-config-file "price-config.testnet.sample.yaml"
 ```
 
