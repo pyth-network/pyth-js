@@ -116,7 +116,7 @@ npm run example-relay -- --network bnb_testnet --mnemonic "my good mnemonic" --e
 
 ## How Pyth Works on EVM Chains
 
-Pyth prices are published on Solana, and relayed to EVM chains using the [Wormhole Network](https://wormholenetwork.com/) as a cross-chain message passing bridge. The Wormhole Network observes when Pyth prices on Solana have changed and publishes an off-chain signed message attesting to this fact. This is explained in more detail [here](https://docs.wormholenetwork.com/wormhole/).
+Pyth prices are published on Pythnet, and relayed to EVM chains using the [Wormhole Network](https://wormholenetwork.com/) as a cross-chain message passing bridge. The Wormhole Network observes when Pyth prices on Pythnet have changed and publishes an off-chain signed message attesting to this fact. This is explained in more detail [here](https://docs.wormholenetwork.com/wormhole/).
 
 This signed message can then be submitted to the Pyth contract on the EVM networks, which will verify the Wormhole message and update the Pyth contract with the new price.
 

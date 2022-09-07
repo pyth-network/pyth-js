@@ -8,9 +8,9 @@ services:
       - "--spyRPC"
       - "[::]:7072"
       - "--bootstrap"
-      - "/dns4/wormhole-testnet-v2-bootstrap.certus.one/udp/8999/quic/p2p/12D3KooWBY9ty9CXLBXGQzMuqkziLntsVcyz4pk1zWaJRvJn6Mmt"
+      - "/dns4/wormhole-mainnet-v2-bootstrap.certus.one/udp/8999/quic/p2p/12D3KooWQp644DK27fd3d4Km3jr7gHiuJJ5ZGmy8hH4py7fP4FP7"
       - "--network"
-      - "/wormhole/testnet/2/1"
+      - "/wormhole/mainnet/2"
       - "--logLevel"
       - "debug"
   price-service:
@@ -21,11 +21,11 @@ services:
         [
           {
             "chain_id": 1,
-            "emitter_address": "f346195ac02f37d60d4db8ffa6ef74cb1be3550047543a4a9ee9acf4d78697b0"
+            "emitter_address": "6bb14509a612f01fbbc4cffeebd4bbfb492a86df717ebe92eb6df432a3f00a25"
           },
           {
             "chain_id": 26,
-            "emitter_address": "a27839d641b07743c0cb5f68c51f8cd31d2c0762bec00dc6fcd25433ef1ab5b6"
+            "emitter_address": "f8cd23c2ab91237730770bbea08d61005cdda0984348f3f6eecb559638c0bba0"
           },
         ]
       REST_PORT: "4200"
@@ -58,13 +58,13 @@ services:
       - "--"
       - "--evm-endpoint"
       # Replace this with RPC endpoint URL for the EVM network.
-      - "https://data-seed-prebsc-1-s1.binance.org:8545"
+      - "https://bsc-dataseed2.binance.org"
       - "--mnemonic-file"
       - "/mnemonic"
       - "--pyth-contract"
       # Replace this with the Pyth contract address. Provide the network name on which Pyth is deployed
       # or the Pyth contract address if you use a local network
-      - "bnb_testnet"
+      - "bnb"
       - "--price-endpoint"
       - "http://price-service:4200"
       - "--price-config-file"
@@ -79,4 +79,4 @@ configs:
   mnemonic:
     file: ./path/to/mnemonic.txt # Replace this with the path to the mnemonic file
   price_config:
-    file: ./price-config.testnet.sample.yaml # Replace this with the path to the price configuration file
+    file: ./price-config.mainnet.sample.yaml # Replace this with the path to the price configuration file
