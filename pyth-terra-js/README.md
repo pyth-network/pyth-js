@@ -95,7 +95,7 @@ npm run example-relay -- --network testnet --mnemonic "my good mnemonic" --endpo
 
 ## How Pyth Works in Terra
 
-Pyth prices are published on Solana, and relayed to Terra using the [Wormhole Network](https://wormholenetwork.com/) as a cross-chain message passing bridge. The Wormhole Network observes when Pyth prices on Solana have changed and publishes an off-chain signed message attesting to this fact. This is explained in more detail [here](https://docs.wormholenetwork.com/wormhole/).
+Pyth prices are published on Pythnet, and relayed to Terra using the [Wormhole Network](https://wormholenetwork.com/) as a cross-chain message passing bridge. The Wormhole Network observes when Pyth prices on Pythnet have changed and publishes an off-chain signed message attesting to this fact. This is explained in more detail [here](https://docs.wormholenetwork.com/wormhole/).
 
 This signed message can then be submitted to the Pyth contract on the Terra network, which will verify the Wormhole message and update the Pyth Terra contract with the new price.
 

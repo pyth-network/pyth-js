@@ -41,7 +41,7 @@ The parameters above are configured per price feed in a price configuration YAML
 ```
 
 You can get the list of available price feeds from
-[here](https://pyth.network/developers/price-feed-ids/#pyth-cross-chain-testnet).
+[here](https://pyth.network/developers/price-feed-ids/).
 
 To run the price pusher, please run the following commands, replacing the command line arguments as necessary:
 
@@ -94,7 +94,8 @@ npm run start -- --evm-endpoint "https://data-seed-prebsc-1-s1.binance.org:8545"
 ```
 
 [`price-config.testnet.sample.yaml`](./price-config.testnet.sample.yaml) contains configuration for `BTC/USD`
-and `BNB/USD` price feeds on Pyth testnet.
+and `BNB/USD` price feeds on Pyth testnet. [`price-config.mainnet.sample.yaml`](./price-config.mainnet.sample.yaml)
+contains the same configuration for `BTC/USD` and `BNB/USD` on Pyth mainnet.
 
 ## Running using a standalone price service (via docker-compose)
 
@@ -103,10 +104,10 @@ Wormhole network to get latest price updates, and serves REST and websocket APIs
 Pyth hosts public endpoints for the price service; however, it is recommended to run it standalone to achieve more resiliency and
 scalability.
 
-This directory contains a sample testnet [docker compose file](./docker-compose.testnet.sample.yaml) that runs a EVM price pusher and all of its dependencies, including a price service and a Wormhole spy. A price service depends on a Wormhole spy. A spy listens to the
+This directory contains sample testnet docker compose files ([testnet](./docker-compose.testnet.sample.yaml)) that runs a EVM price pusher and all of its dependencies, including a price service and a Wormhole spy. A price service depends on a Wormhole spy. A spy listens to the
 Wormhole network and reports all Pyth-related Wormhole messages to the price service.
 
-To run the services via docker-compose, please modify the sample docker-compose file to adjust
+To run the services via docker-compose, please modify the your target network (testnet, mainnet) sample docker-compose file to adjust
 the path to your mnemonic file, the path to your price configuration file, the EVM endpoint, and the Pyth contract address
 as necessary.
 
