@@ -4,6 +4,7 @@ import { hideBin } from "yargs/helpers";
 
 import { EvmPriceServiceConnection, CONTRACT_ADDR } from "../index";
 import HDWalletProvider from "@truffle/hdwallet-provider";
+import PythInterfaceAbi from "@pythnetwork/pyth-sdk-solidity/abis/IPyth.json";
 
 const argv = yargs(hideBin(process.argv))
   .option("network", {
@@ -84,22 +85,6 @@ if (CONFIG[argv.network] !== undefined) {
   pythContractAddr = argv.pythContract;
 }
 
-const pythRelayAbi = [
-  {
-    inputs: [
-      {
-        internalType: "bytes[]",
-        name: "updateData",
-        type: "bytes[]",
-      },
-    ],
-    name: "updatePriceFeeds",
-    outputs: [],
-    stateMutability: "nonpayable" as const,
-    type: "function" as const,
-  },
-];
-
 const connection = new EvmPriceServiceConnection(argv.endpoint);
 
 async function run() {
@@ -121,9 +106,13 @@ async function run() {
   );
   console.log(priceFeedUpdateData);
 
-  const pythContract = new web3.eth.Contract(pythRelayAbi, pythContractAddr, {
-    from: provider.getAddress(0),
-  });
+  const pythContract = new web3.eth.Contract(
+    PythInterfaceAbi as any,
+    pythContractAddr,
+    {
+      from: provider.getAddress(0),
+    }
+  );
 
   pythContract.methods
     .updatePriceFeeds(priceFeedUpdateData)

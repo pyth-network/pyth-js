@@ -121,10 +121,10 @@ export class EvmPriceListener implements PriceListener {
   async getOnChainPriceInfo(
     priceId: HexString
   ): Promise<PriceInfo | undefined> {
-    let priceFeedRaw;
+    let priceRaw;
     try {
-      priceFeedRaw = await this.pythContract.methods
-        .queryPriceFeed(addLeading0x(priceId))
+      priceRaw = await this.pythContract.methods
+        .getPriceUnsafe(addLeading0x(priceId))
         .call();
     } catch (e) {
       console.error(`Getting on-chain price for ${priceId} failed. Error:`);
@@ -132,29 +132,10 @@ export class EvmPriceListener implements PriceListener {
       return undefined;
     }
 
-    const priceFeed = new PriceFeed({
-      id: removeLeading0x(priceFeedRaw.id),
-      productId: removeLeading0x(priceFeedRaw.productId),
-      price: priceFeedRaw.price,
-      conf: priceFeedRaw.conf,
-      expo: Number(priceFeedRaw.expo),
-      status: statusNumberToEnum(Number(priceFeedRaw.status)),
-      maxNumPublishers: Number(priceFeedRaw.maxNumPublishers),
-      numPublishers: Number(priceFeedRaw.numPublishers),
-      emaPrice: priceFeedRaw.emaPrice,
-      emaConf: priceFeedRaw.emaConf,
-      publishTime: Number(priceFeedRaw.publishTime),
-      prevPrice: priceFeedRaw.prevPrice,
-      prevConf: priceFeedRaw.prevConf,
-      prevPublishTime: Number(priceFeedRaw.prevPublishTime),
-    });
-
-    const latestAvailablePrice = priceFeed.getLatestAvailablePriceUnchecked();
-
     return {
-      conf: latestAvailablePrice[0].conf,
-      price: latestAvailablePrice[0].price,
-      publishTime: latestAvailablePrice[1],
+      conf: priceRaw.conf,
+      price: priceRaw.price,
+      publishTime: priceRaw.publishTime,
     };
   }
 }
