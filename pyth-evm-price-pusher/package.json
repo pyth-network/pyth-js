@@ -1,6 +1,6 @@
 {
   "name": "@pythnetwork/pyth-evm-price-pusher",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Pyth EVM Price Pusher",
   "homepage": "https://pyth.network",
   "main": "lib/index.js",
@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@pythnetwork/pyth-evm-js": "^0.5.0",
-    "@pythnetwork/pyth-sdk-solidity": "^0.5.2",
+    "@pythnetwork/pyth-sdk-solidity": "^1.0.1",
     "@truffle/hdwallet-provider": "^2.0.8",
     "joi": "^17.6.0",
     "web3": "^1.5.3",

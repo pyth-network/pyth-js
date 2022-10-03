@@ -75,13 +75,14 @@ contract SomeContract {
         pyth = IPyth(pythContract);
     }
 
-    function doSomething(uint someArg, string memory otherArg, bytes[] memory priceUpdateData) public {
+    function doSomething(uint someArg, string memory otherArg, bytes[] memory priceUpdateData) public payable {
         // Update the prices to be set to the latest values
-        pyth.updatePriceFeeds(priceUpdateData);
+        uint fee = pyth.getUpdateFee(priceUpdateData.length);
+        pyth.updatePriceFeeds{value: fee}(priceUpdateData);
 
         // Doing other things that uses prices
         bytes32 priceId = 0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b;
-        PythStructs.Price currentPrice = pyth.getCurrentPrice(priceId);
+        PythStructs.Price price = pyth.getPrice(priceId);
     }
 }
 ```
