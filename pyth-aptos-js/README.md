@@ -45,6 +45,40 @@ console.log(priceFeeds[1].getEmaPrice()); // Exponentially-weighted moving avera
 // chain. `getPriceUpdateData` creates the update data which can be submitted to your contract. Then your contract should
 // call the Pyth Contract with this data.
 const priceUpdateData = await connection.getPriceUpdateData(priceIds);
+
+// Create a transaction and submit to your contract using the price update data
+const client = new AptosClient(endpoint);
+let result = await client.generateSignSubmitWaitForTransaction(
+  sender,
+  new TxnBuilderTypes.TransactionPayloadEntryFunction(
+    TxnBuilderTypes.EntryFunction.natural(
+      "0x..::your_module", "do_something",
+      [], [priceUpdateData]
+    )
+));
+```
+
+`your_module::do_something` should then call `pyth::update_price_feeds` before querying the data using `pyth::get_price`:
+
+```move
+module example::your_module {
+    use pyth::pyth;
+    use pyth::price_identifier;
+    use aptos_framework::coin;
+
+    public fun do_something(user: &signer, pyth_update_data: vector<vector<u8>>) {
+
+        // First update the Pyth price feeds
+        let coins = coin::withdraw(user, pyth::get_update_fee());
+        pyth::update_price_feeds(pyth_update_data, coins);
+
+        // Now we can use the prices which we have just updated
+        let btc_usd_price_id = price_identifier::from_byte_vec(
+            x"e62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43");
+        let price = pyth::get_price(btc_usd_price_id);
+
+    }
+}
 ```
 
 We strongly recommend reading our guide which explains [how to work with Pyth price feeds](https://docs.pyth.network/consume-data/best-practices).
