@@ -26,8 +26,7 @@ const argv = yargs(hideBin(process.argv))
     required: true,
   })
   .option("pyth-contract", {
-    description:
-      "Pyth contract address.",
+    description: "Pyth contract address.",
     type: "string",
     required: true,
   })
@@ -41,7 +40,9 @@ const argv = yargs(hideBin(process.argv))
 async function run() {
   // Fetch the latest price feed update data from the Price Service
   const connection = new AptosPriceServiceConnection(argv.priceService);
-  const priceFeedUpdateData = await connection.getPriceFeedsUpdateData(argv.priceIds as string[]);
+  const priceFeedUpdateData = await connection.getPriceFeedsUpdateData(
+    argv.priceIds as string[]
+  );
 
   // Update the Pyth Contract using this update data
   let sender = new AptosAccount(Buffer.from(process.env[APTOS_KEY]!, "hex"));
@@ -49,11 +50,15 @@ async function run() {
   let result = await client.generateSignSubmitWaitForTransaction(
     sender,
     new TxnBuilderTypes.TransactionPayloadEntryFunction(
-      TxnBuilderTypes.EntryFunction.natural(argv.pythContract + "::pyth", "update_price_feeds_with_funder",
-        [], [priceFeedUpdateData]
+      TxnBuilderTypes.EntryFunction.natural(
+        argv.pythContract + "::pyth",
+        "update_price_feeds_with_funder",
+        [],
+        [priceFeedUpdateData]
       )
-  ));
-  
+    )
+  );
+
   console.dir(result, { depth: null });
 }
 

@@ -16,8 +16,9 @@ export class AptosPriceServiceConnection extends PriceServiceConnection {
     // Serialize the VAAs using BCS
     const serializer = new BCS.Serializer();
     serializer.serializeU32AsUleb128(latestVaas.length);
-    latestVaas.forEach(vaa =>
-        serializer.serializeBytes(Buffer.from(vaa, "base64")));
+    latestVaas.forEach((vaa) =>
+      serializer.serializeBytes(Buffer.from(vaa, "base64"))
+    );
     return serializer.getBytes();
   }
 }

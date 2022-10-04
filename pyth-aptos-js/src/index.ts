@@ -9,4 +9,3 @@ export {
   PriceStatus,
   UnixTimestamp,
 } from "@pythnetwork/pyth-common-js";
-
