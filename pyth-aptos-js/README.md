@@ -52,8 +52,10 @@ let result = await client.generateSignSubmitWaitForTransaction(
   sender,
   new TxnBuilderTypes.TransactionPayloadEntryFunction(
     TxnBuilderTypes.EntryFunction.natural(
-      "0x..::your_module", "do_something",
-      [], [priceUpdateData]
+      "0x..::your_module",
+      "do_something",
+      [],
+      [priceUpdateData]
     )
 ));
 ```
