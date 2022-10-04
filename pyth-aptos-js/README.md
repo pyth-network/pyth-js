@@ -57,7 +57,8 @@ let result = await client.generateSignSubmitWaitForTransaction(
       [],
       [priceUpdateData]
     )
-));
+  )
+);
 ```
 
 `your_module::do_something` should then call `pyth::update_price_feeds` before querying the data using `pyth::get_price`:
