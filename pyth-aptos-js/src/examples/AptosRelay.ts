@@ -45,9 +45,9 @@ async function run() {
   );
 
   // Update the Pyth Contract using this update data
-  let sender = new AptosAccount(Buffer.from(process.env[APTOS_KEY]!, "hex"));
+  const sender = new AptosAccount(Buffer.from(process.env[APTOS_KEY]!, "hex"));
   const client = new AptosClient(argv.fullNode);
-  let result = await client.generateSignSubmitWaitForTransaction(
+  const result = await client.generateSignSubmitWaitForTransaction(
     sender,
     new TxnBuilderTypes.TransactionPayloadEntryFunction(
       TxnBuilderTypes.EntryFunction.natural(
