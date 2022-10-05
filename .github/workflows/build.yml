@@ -21,6 +21,8 @@ jobs:
         working-directory: "pyth-common-js"
       - run: npm run build
         working-directory: "pyth-common-js"
+      - run: npm run prepublishOnly
+        working-directory: "pyth-common-js"
   build-pyth-evm-js:
     name: Build Pyth EVM JS
     runs-on: ubuntu-latest
@@ -43,6 +45,8 @@ jobs:
       - run: npm ci
         working-directory: "pyth-evm-js"
       - run: npm run build
+        working-directory: "pyth-evm-js"
+      - run: npm run prepublishOnly
         working-directory: "pyth-evm-js"
   build-pyth-aptos-js:
     name: Build Pyth Aptos JS
@@ -67,6 +71,8 @@ jobs:
         working-directory: "pyth-aptos-js"
       - run: npm run build
         working-directory: "pyth-aptos-js"
+      - run: npm run prepublishOnly
+        working-directory: "pyth-aptos-js"
   build-pyth-terra-js:
     name: Build Pyth Common JS
     runs-on: ubuntu-latest
@@ -84,4 +90,6 @@ jobs:
       - run: npm run build
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        working-directory: "pyth-terra-js"
+      - run: npm run prepublishOnly
         working-directory: "pyth-terra-js"
