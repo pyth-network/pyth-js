@@ -7,7 +7,7 @@ export class AptosPriceServiceConnection extends PriceServiceConnection {
    * This will throw an axios error if there is a network problem or the price service returns a non-ok response (e.g: Invalid price ids)
    *
    * @param priceIds Array of hex-encoded price ids.
-   * @returns Array of price update data, serialized such that it can be passed to the Pyth Aptos contract.
+   * @returns Array of price update data.
    */
   async getPriceFeedsUpdateData(priceIds: HexString[]): Promise<number[][]> {
     // Fetch the latest price feed update VAAs from the price service
