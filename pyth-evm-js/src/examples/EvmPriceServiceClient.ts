@@ -37,7 +37,7 @@ async function run() {
   console.log(priceIds);
   const priceFeeds = await connection.getLatestPriceFeeds(priceIds);
   console.log(priceFeeds);
-  console.log(priceFeeds?.at(0)?.getCurrentPrice());
+  console.log(priceFeeds?.at(0)?.getPriceNoOlderThan(60));
 
   const updateData = await connection.getPriceFeedsUpdateData(priceIds);
   console.log(updateData);
@@ -47,7 +47,7 @@ async function run() {
   await connection.subscribePriceFeedUpdates(priceIds, (priceFeed) => {
     console.log(
       `Current price for ${priceFeed.id}: ${JSON.stringify(
-        priceFeed.getCurrentPrice()
+        priceFeed.getPriceNoOlderThan(60)
       )}.`
     );
   });
