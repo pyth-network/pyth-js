@@ -1,5 +1,6 @@
 import { PriceServiceConnection, HexString } from "@pythnetwork/pyth-common-js";
 import { BCS } from "aptos";
+import { Buffer } from "buffer";
 
 export class AptosPriceServiceConnection extends PriceServiceConnection {
   /**
