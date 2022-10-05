@@ -54,7 +54,7 @@ async function run() {
         argv.pythContract + "::pyth",
         "update_price_feeds_with_funder",
         [],
-        [priceFeedUpdateData]
+        [AptosPriceServiceConnection.serializeUpdateData(priceFeedUpdateData)]
       )
     )
   );
