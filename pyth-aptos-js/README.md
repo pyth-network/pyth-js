@@ -38,8 +38,10 @@ const priceIds = [
 // `getPythLatestPriceFeeds` returns a `PriceFeed` for each price id. It contains all information about a price and has
 // utility functions to get the current and exponentially-weighted moving average price, and other functionality.
 const priceFeeds = connection.getPythLatestPriceFeeds(priceIds);
-console.log(priceFeeds[0].getCurrentPrice()); // Price { conf: '1234', expo: -8, price: '12345678' }
-console.log(priceFeeds[1].getEmaPrice()); // Exponentially-weighted moving average price
+// Get the price if it is not older than 60 seconds from the current time.
+console.log(priceFeeds[0].getPriceNoOlderThan(60)); // Price { conf: '1234', expo: -8, price: '12345678' }
+// Get the exponentially-weighted moving average price if it is not older than 60 seconds from the current time.
+console.log(priceFeeds[1].getEmaPriceNoOlderThan(60));
 
 // In order to use Pyth prices in your protocol you need to submit the price update data to Pyth contract in your target
 // chain. `getPriceUpdateData` creates the update data which can be submitted to your contract. Then your contract should
