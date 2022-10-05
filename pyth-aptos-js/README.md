@@ -88,7 +88,7 @@ We strongly recommend reading our guide which explains [how to work with Pyth pr
 
 ### Example
 
-[This example](./src/examples/AptosRelay.ts) shows how to update prices on an EVM network. It does the following:
+[This example](./src/examples/AptosRelay.ts) shows how to update prices on an Aptos network. It does the following:
 
 1. Fetches update data from the Price Service for the given price feeds.
 2. Calls the Pyth Aptos contract with the update data.
@@ -108,7 +108,7 @@ This signed message can then be submitted to the Pyth contract on the Aptos netw
 
 ### On-demand price updates
 
-Price updates are not submitted on the EVM networks automatically: rather, when a consumer needs to use the value of a price they should first submit the latest Wormhole update for that price to the Pyth contract on the EVM network they are working on. This will make the most recent price update available on-chain for EVM contracts to use.
+Price updates are not submitted to the Aptos networks automatically: rather, when a consumer needs to use the value of a price they should first submit the latest Wormhole update for that price to the Pyth contract on the Aptos network they are working on. This will make the most recent price update available on-chain for Aptos contracts to use.
 
 ## Price Service endpoints
 
