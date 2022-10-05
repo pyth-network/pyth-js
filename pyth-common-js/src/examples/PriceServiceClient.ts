@@ -36,14 +36,14 @@ async function run() {
   const priceIds = argv.priceIds as string[];
   const priceFeeds = await connection.getLatestPriceFeeds(priceIds);
   console.log(priceFeeds);
-  console.log(priceFeeds?.at(0)?.getCurrentPrice());
+  console.log(priceFeeds?.at(0)?.getPriceNoOlderThan(60));
 
   console.log("Subscribing to price feed updates.");
 
   await connection.subscribePriceFeedUpdates(priceIds, (priceFeed) => {
     console.log(
       `Current price for ${priceFeed.id}: ${JSON.stringify(
-        priceFeed.getCurrentPrice()
+        priceFeed.getPriceNoOlderThan(60)
       )}.`
     );
   });
