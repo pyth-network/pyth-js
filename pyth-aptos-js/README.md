@@ -90,7 +90,7 @@ We strongly recommend reading our guide which explains [how to work with Pyth pr
 
 ### Example
 
-[This example](./src/examples/AptosRelay.ts) shows how to update prices on an EVM network. It does the following:
+[This example](./src/examples/AptosRelay.ts) shows how to update prices on an Aptos network. It does the following:
 
 1. Fetches update data from the Price Service for the given price feeds.
 2. Calls the Pyth Aptos contract with the update data.
@@ -99,7 +99,7 @@ You can run this example with `npm run example-relay`. A full command that updat
 
 ```bash
 export APTOS_KEY = "0x...";
-npm run example-relay -- --endpoint https://xc-testnet.pyth.network --price-ids 0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6 --full-node https://fullnode.testnet.aptoslabs.com/v1 --pyth-contract 0xc655df014ec65d43b478e8e580a2e9493db954818efb01f1cb4a24654294a709
+npm run example-relay -- --endpoint https://xc-testnet.pyth.network --price-ids 0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b 0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6 --full-node https://fullnode.testnet.aptoslabs.com/v1 --pyth-contract 0xaa706d631cde8c634fe1876b0c93e4dec69d0c6ccac30a734e9e257042e81541
 ```
 
 ## How Pyth Works on Aptos
@@ -110,7 +110,7 @@ This signed message can then be submitted to the Pyth contract on the Aptos netw
 
 ### On-demand price updates
 
-Price updates are not submitted on the EVM networks automatically: rather, when a consumer needs to use the value of a price they should first submit the latest Wormhole update for that price to the Pyth contract on the EVM network they are working on. This will make the most recent price update available on-chain for EVM contracts to use.
+Price updates are not submitted to the Aptos networks automatically: rather, when a consumer needs to use the value of a price they should first submit the latest Wormhole update for that price to the Pyth contract on the Aptos network they are working on. This will make the most recent price update available on-chain for Aptos contracts to use.
 
 ## Price Service endpoints
 
