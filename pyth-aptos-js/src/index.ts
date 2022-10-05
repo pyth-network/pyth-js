@@ -6,6 +6,5 @@ export {
   Price,
   PriceFeed,
   PriceServiceConnectionConfig,
-  PriceStatus,
   UnixTimestamp,
 } from "@pythnetwork/pyth-common-js";
