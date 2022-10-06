@@ -34,6 +34,8 @@ export class PythPriceListener implements PriceListener {
 
     const priceFeeds = await this.connection.getLatestPriceFeeds(this.priceIds);
     priceFeeds?.forEach((priceFeed) => {
+      // Getting unchecked because although it might be old
+      // but might not be there on the target chain.
       const latestAvailablePrice = priceFeed.getPriceUnchecked();
       this.latestPriceInfo.set(priceFeed.id, {
         price: latestAvailablePrice.price,
@@ -50,7 +52,8 @@ export class PythPriceListener implements PriceListener {
       )} ${priceFeed.id}`
     );
 
-    const currentPrice = priceFeed.getPriceUnchecked();
+    // Consider price to be currently available if it is not older than 60s
+    const currentPrice = priceFeed.getPriceNoOlderThan(60);
     if (currentPrice === undefined) {
       return;
     }
