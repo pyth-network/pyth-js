@@ -137,6 +137,17 @@ export class PriceServiceConnection {
   }
 
   /**
+   * Fetch the list of available price feed ids.
+   * This will throw an axios error if there is a network problem or the price service returns a non-ok response.
+   *
+   * @returns Array of hex-encoded price ids.
+   */
+  async getPriceFeedIds(): Promise<HexString[]> {
+    const response = await this.httpClient.get("/api/price_feed_ids");
+    return response.data;
+  }
+
+  /**
    * Subscribe to updates for given price ids.
    *
    * It will start a websocket connection if it's not started yet.
