@@ -1,4 +1,4 @@
-import { HexString, PriceStatus } from "@pythnetwork/pyth-evm-js";
+import { HexString } from "@pythnetwork/pyth-evm-js";
 
 export type PctNumber = number;
 export type DurationInSeconds = number;
@@ -19,21 +19,6 @@ export function addLeading0x(id: HexString): HexString {
     return id;
   }
   return "0x" + id;
-}
-
-export function statusNumberToEnum(status: number): PriceStatus {
-  switch (status) {
-    case 0:
-      return PriceStatus.Unknown;
-    case 1:
-      return PriceStatus.Trading;
-    case 2:
-      return PriceStatus.Halted;
-    case 3:
-      return PriceStatus.Auction;
-    default:
-      throw new Error("Invalid status");
-  }
 }
 
 export function isWsEndpoint(endpoint: string): boolean {
