@@ -264,6 +264,7 @@ export class PriceServiceConnection {
         const message: ClientMessage = {
           ids: Array.from(this.priceFeedCallbacks.keys()),
           type: "subscribe",
+          verbose: this.verbose,
         };
 
         this.logger?.info("Resubscribing to existing price feeds.");
