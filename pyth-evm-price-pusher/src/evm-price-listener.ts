@@ -1,4 +1,4 @@
-import { HexString, PriceFeed } from "@pythnetwork/pyth-evm-js";
+import { HexString } from "@pythnetwork/pyth-evm-js";
 
 import AbstractPythAbi from "@pythnetwork/pyth-sdk-solidity/abis/AbstractPyth.json";
 import Web3 from "web3";
@@ -10,7 +10,6 @@ import {
   DurationInSeconds,
   isWsEndpoint,
   removeLeading0x,
-  statusNumberToEnum,
 } from "./utils";
 
 export class EvmPriceListener implements PriceListener {

@@ -34,11 +34,11 @@ export class PythPriceListener implements PriceListener {
 
     const priceFeeds = await this.connection.getLatestPriceFeeds(this.priceIds);
     priceFeeds?.forEach((priceFeed) => {
-      const latestAvailablePrice = priceFeed.getLatestAvailablePriceUnchecked();
+      const latestAvailablePrice = priceFeed.getPriceUnchecked();
       this.latestPriceInfo.set(priceFeed.id, {
-        price: latestAvailablePrice[0].price,
-        conf: latestAvailablePrice[0].conf,
-        publishTime: latestAvailablePrice[1],
+        price: latestAvailablePrice.price,
+        conf: latestAvailablePrice.conf,
+        publishTime: latestAvailablePrice.publishTime,
       });
     });
   }
@@ -50,7 +50,7 @@ export class PythPriceListener implements PriceListener {
       )} ${priceFeed.id}`
     );
 
-    const currentPrice = priceFeed.getCurrentPrice();
+    const currentPrice = priceFeed.getPriceUnchecked();
     if (currentPrice === undefined) {
       return;
     }
@@ -58,7 +58,7 @@ export class PythPriceListener implements PriceListener {
     const priceInfo: PriceInfo = {
       conf: currentPrice.conf,
       price: currentPrice.price,
-      publishTime: priceFeed.publishTime,
+      publishTime: currentPrice.publishTime,
     };
 
     this.latestPriceInfo.set(priceFeed.id, priceInfo);

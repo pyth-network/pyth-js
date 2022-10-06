@@ -14,7 +14,7 @@ services:
       - "--logLevel"
       - "debug"
   price-service:
-    image: public.ecr.aws/pyth-network/xc-server:v1.0.0
+    image: public.ecr.aws/pyth-network/xc-server:v2.0.0
     environment:
       SPY_SERVICE_HOST: "spy:7072"
       SPY_SERVICE_FILTERS: |
@@ -26,12 +26,12 @@ services:
           {
             "chain_id": 26,
             "emitter_address": "a27839d641b07743c0cb5f68c51f8cd31d2c0762bec00dc6fcd25433ef1ab5b6"
-          },
+          }
         ]
       REST_PORT: "4200"
       PROM_PORT: "8081"
-      READINESS_SPY_SYNC_TIME_SECONDS: "60"
-      READINESS_NUM_LOADED_SYMBOLS: "8"
+      READINESS_SPY_SYNC_TIME_SECONDS: "20"
+      READINESS_NUM_LOADED_SYMBOLS: "50"
       LOG_LEVEL: debug
     healthcheck:
       test:
@@ -43,7 +43,7 @@ services:
           "--spider",
           "http://localhost:4200/ready",
         ]
-      start_period: 60s
+      start_period: 20s
     depends_on:
       - spy
   price-pusher:
