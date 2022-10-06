@@ -20,11 +20,14 @@ export type PriceServiceConnectionConfig = {
   httpRetries?: number;
   /* Optional logger (e.g: console or any logging library) to log internal events */
   logger?: Logger;
+  /* Optional verbose to request for verbose information from the service */
+  verbose?: boolean;
 };
 
 type ClientMessage = {
   type: "subscribe" | "unsubscribe";
   ids: HexString[];
+  verbose?: boolean;
 };
 
 type ServerResponse = {
@@ -51,6 +54,8 @@ export class PriceServiceConnection {
 
   private logger: undefined | Logger;
 
+  private verbose: boolean;
+
   /**
    * Custom handler for web socket errors (connection and message parsing).
    *
@@ -73,6 +78,8 @@ export class PriceServiceConnection {
       retries: config?.httpRetries || 3,
       retryDelay: axiosRetry.exponentialDelay,
     });
+
+    this.verbose = config?.verbose || false;
 
     this.priceFeedCallbacks = new Map();
     this.logger = config?.logger;
@@ -100,6 +107,7 @@ export class PriceServiceConnection {
     const response = await this.httpClient.get("/api/latest_price_feeds", {
       params: {
         ids: priceIds,
+        verbose: this.verbose,
       },
     });
     const priceFeedsJson = response.data as any[];
@@ -163,6 +171,7 @@ export class PriceServiceConnection {
     const message: ClientMessage = {
       ids: newPriceIds,
       type: "subscribe",
+      verbose: this.verbose,
     };
 
     await this.wsClient?.send(JSON.stringify(message));
