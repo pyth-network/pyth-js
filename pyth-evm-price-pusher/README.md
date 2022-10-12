@@ -104,8 +104,10 @@ Wormhole network to get latest price updates, and serves REST and websocket APIs
 Pyth hosts public endpoints for the price service; however, it is recommended to run it standalone to achieve more resiliency and
 scalability.
 
-This directory contains sample testnet docker compose files ([testnet](./docker-compose.testnet.sample.yaml)) that runs a EVM price pusher and all of its dependencies, including a price service and a Wormhole spy. A price service depends on a Wormhole spy. A spy listens to the
-Wormhole network and reports all Pyth-related Wormhole messages to the price service.
+This directory contains sample docker compose files ([testnet](./docker-compose.testnet.sample.yaml),
+[mainnet](./docker-compose.mainnet.sample.yaml)) an EVM price pusher and its dependencies, including a
+price service and a Wormhole spy. A price service depends on a Wormhole spy. A spy listens to the Wormhole
+network and reports all Pyth-related Wormhole messages to the price service.
 
 To run the services via docker-compose, please modify the your target network (testnet, mainnet) sample docker-compose file to adjust
 the path to your mnemonic file, the path to your price configuration file, the EVM endpoint, and the Pyth contract address
