@@ -8,7 +8,7 @@ services:
       - "--spyRPC"
       - "[::]:7072"
       - "--bootstrap"
-      - "/dns4/wormhole-testnet-v2-bootstrap.certus.one/udp/8999/quic/p2p/12D3KooWBY9ty9CXLBXGQzMuqkziLntsVcyz4pk1zWaJRvJn6Mmt"
+      - "/dns4/wormhole-testnet-v2-bootstrap.certus.one/udp/8999/quic/p2p/12D3KooWAkB9ynDur1Jtoa97LBUp8RXdhzS5uHgAfdTquJbrbN7i"
       - "--network"
       - "/wormhole/testnet/2/1"
       - "--logLevel"
