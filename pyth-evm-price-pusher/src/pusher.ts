@@ -108,13 +108,18 @@ export class Pusher {
       )
     );
 
+    const updateFee = await this.pythContract.methods
+      .getUpdateFee(priceFeedUpdateData.length)
+      .call();
+    console.log(`Update fee: ${updateFee}`);
+
     this.pythContract.methods
       .updatePriceFeedsIfNecessary(
         priceFeedUpdateData,
         priceIds,
         pubTimesToPush
       )
-      .send()
+      .send({ value: updateFee })
       .on("transactionHash", (hash: string) => {
         console.log(`Successful. Tx hash: ${hash}`);
       })

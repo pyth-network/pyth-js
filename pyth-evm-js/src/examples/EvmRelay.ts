@@ -114,9 +114,14 @@ async function run() {
     }
   );
 
+  const updateFee = await pythContract.methods
+    .getUpdateFee(priceFeedUpdateData.length)
+    .call();
+  console.log(`Update fee: ${updateFee}`);
+
   pythContract.methods
     .updatePriceFeeds(priceFeedUpdateData)
-    .send()
+    .send({ value: updateFee })
     .on("transactionHash", (hash: string) => {
       console.log(`Tx hash: ${hash}`);
     });
