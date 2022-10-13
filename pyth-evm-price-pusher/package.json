@@ -1,6 +1,6 @@
 {
   "name": "@pythnetwork/pyth-evm-price-pusher",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Pyth EVM Price Pusher",
   "homepage": "https://pyth.network",
   "main": "lib/index.js",
