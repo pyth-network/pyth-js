@@ -59,7 +59,20 @@ setTimeout(() => {
 // call the Pyth Contract with this data.
 const priceUpdateData = await connection.getPriceUpdateData(priceIds);
 
-await someContract.doSomething(someArg, otherArg, priceUpdateData);
+// If the user is paying the price update fee, you need to fetch it from the Pyth contract.
+// Please refer to https://docs.pyth.network/consume-data/on-demand#fees for more information.
+//
+// `pythContract` below is a web3.js contract; if you wish to use ethers, you need to change it accordingly.
+// You can find the Pyth interface ABI in @pythnetwork/pyth-sdk-solidity npm package.
+const updateFee = await pythContract.methods
+  .getUpdateFee(priceFeedUpdateData.length)
+  .call();
+
+// Calling someContract method
+// `someContract` below is a web3.js contract; if you wish to use ethers, you need to change it accordingly.
+await someContract.methods
+  .doSomething(someArg, otherArg, priceUpdateData)
+  .send({ value: updateFee });
 ```
 
 `SomeContract` looks like so:
