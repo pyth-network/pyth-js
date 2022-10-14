@@ -60,8 +60,10 @@ setTimeout(() => {
 const priceUpdateData = await connection.getPriceUpdateData(priceIds);
 
 // If the user is paying the price update fee, you need to fetch it from the Pyth contract.
+// Please refer to https://docs.pyth.network/consume-data/on-demand#fees for more information.
+//
 // `pythContract` below is a web3.js contract; if you wish to use ethers, you need to change it accordingly.
-// You can find the Pyth interface ABI in @pythnetwork/pyth-sdk-solidity.
+// You can find the Pyth interface ABI in @pythnetwork/pyth-sdk-solidity npm package.
 const updateFee = await pythContract.methods
   .getUpdateFee(priceFeedUpdateData.length)
   .call();
