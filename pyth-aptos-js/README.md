@@ -46,7 +46,7 @@ console.log(priceFeeds[1].getEmaPriceNoOlderThan(60));
 // In order to use Pyth prices in your protocol you need to submit the price update data to Pyth contract in your target
 // chain. `getPriceUpdateData` creates the update data which can be submitted to your contract. Then your contract should
 // call the Pyth Contract with this data.
-const priceUpdateData = await connection.getPriceUpdateData(priceIds);
+const priceUpdateData = await connection.getPriceFeedsUpdateData(priceIds);
 
 // Create a transaction and submit to your contract using the price update data
 const client = new AptosClient(endpoint);
@@ -74,7 +74,7 @@ module example::your_module {
     public fun do_something(user: &signer, pyth_update_data: vector<vector<u8>>) {
 
         // First update the Pyth price feeds
-        let coins = coin::withdraw(user, pyth::get_update_fee());
+        let coins = coin::withdraw(user, pyth::get_update_fee(pyth_update_data));
         pyth::update_price_feeds(pyth_update_data, coins);
 
         // Now we can use the prices which we have just updated
