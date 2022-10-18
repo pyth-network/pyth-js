@@ -65,7 +65,7 @@ module example::your_module {
 
     public fun do_something(user: &signer, pyth_update_data: vector<vector<u8>>) {
 
-        // First update the Pyth price feeds. The user pays the fee for the update. 
+        // First update the Pyth price feeds. The user pays the fee for the update.
         let coins = coin::withdraw(user, pyth::get_update_fee());
         pyth::update_price_feeds(pyth_update_data, coins);
 
@@ -104,7 +104,9 @@ This method is useful if you want to show continuously updating real-time prices
 // Subscribe to the price feeds given by `priceId`. The callback will be invoked every time the requested feed
 // gets a price update.
 connection.subscribePriceFeedUpdates(priceIds, (priceFeed) => {
-  console.log(`Received update for ${priceFeed.id}: ${priceFeed.getPriceNoOlderThan(60)}`);
+  console.log(
+    `Received update for ${priceFeed.id}: ${priceFeed.getPriceNoOlderThan(60)}`
+  );
 });
 
 // When using the subscription, make sure to close the websocket upon termination to finish the process gracefully.
