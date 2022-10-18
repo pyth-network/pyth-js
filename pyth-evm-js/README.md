@@ -30,7 +30,7 @@ const connection = new EvmPriceServiceConnection(
 ); // See Price Service endpoints section below for other endpoints
 
 const priceIds = [
-  // You can find the ids of prices at https://pyth.network/developers/price-feeds#binance-smart-chain-testnet
+  // You can find the ids of prices at https://pyth.network/developers/price-feed-ids#pyth-evm-testnet
   "0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b", // BTC/USD price id in testnet
   "0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6", // ETH/USD price id in testnet
 ];

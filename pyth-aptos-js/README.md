@@ -30,18 +30,10 @@ const connection = new AptosPriceServiceConnection(
 ); // See Price Service endpoints section below for other endpoints
 
 const priceIds = [
-  // You can find the ids of prices at https://pyth.network/developers/price-feed-ids/#pyth-cross-chain-testnet
+  // You can find the ids of prices at https://pyth.network/developers/price-feed-ids#aptos-testnet
   "0xf9c0172ba10dfa4d19088d94f5bf61d3b54d5bd7483a322a982e1373ee8ea31b", // BTC/USD price id in testnet
   "0xca80ba6dc32e08d06f1aa886011eed1d77c77be9eb761cc10d72b7d0a2fd57a6", // ETH/USD price id in testnet
 ];
-
-// `getPythLatestPriceFeeds` returns a `PriceFeed` for each price id. It contains all information about a price and has
-// utility functions to get the current and exponentially-weighted moving average price, and other functionality.
-const priceFeeds = connection.getPythLatestPriceFeeds(priceIds);
-// Get the price if it is not older than 60 seconds from the current time.
-console.log(priceFeeds[0].getPriceNoOlderThan(60)); // Price { conf: '1234', expo: -8, price: '12345678' }
-// Get the exponentially-weighted moving average price if it is not older than 60 seconds from the current time.
-console.log(priceFeeds[1].getEmaPriceNoOlderThan(60));
 
 // In order to use Pyth prices in your protocol you need to submit the price update data to Pyth contract in your target
 // chain. `getPriceUpdateData` creates the update data which can be submitted to your contract. Then your contract should
@@ -88,6 +80,36 @@ module example::your_module {
 
 We strongly recommend reading our guide which explains [how to work with Pyth price feeds](https://docs.pyth.network/consume-data/best-practices).
 
+### Off-chain prices
+
+Many applications additionally need to display Pyth prices off-chain, for example, in their frontend application.
+The `AptosPriceServiceConnection` provides two different ways to fetch the current Pyth price.
+The code blocks below assume that the `connection` and `priceIds` objects have been initialized as shown above.
+The first method is a single shot query:
+
+```typescript
+// `getLatestPriceFeeds` returns a `PriceFeed` for each price id. It contains all information about a price and has
+// utility functions to get the current and exponentially-weighted moving average price, and other functionality.
+const priceFeeds = await connection.getLatestPriceFeeds(priceIds);
+// Get the price if it is not older than 60 seconds from the current time.
+console.log(priceFeeds[0].getPriceNoOlderThan(60)); // Price { conf: '1234', expo: -8, price: '12345678' }
+// Get the exponentially-weighted moving average price if it is not older than 60 seconds from the current time.
+console.log(priceFeeds[1].getEmaPriceNoOlderThan(60));
+```
+
+The object also supports a streaming websocket connection that allows you to subscribe to every new price update for a given feed.
+This method is useful if you want to show continuously updating real-time prices in your frontend:
+
+```typescript
+// Subscribe to the price feeds given by `priceId`. The callback will be invoked every time the requested feed
+// gets a price update.
+connection.subscribePriceFeedUpdates(priceIds, (priceFeed) => {
+  console.log("Received a new price feed update!");
+  console.log(priceFeed.getPriceNoOlderThan(60));
+});
+```
+
+
 ### Example
 
 [This example](./src/examples/AptosRelay.ts) shows how to update prices on an Aptos network. It does the following:
@@ -95,7 +117,7 @@ We strongly recommend reading our guide which explains [how to work with Pyth pr
 1. Fetches update data from the Price Service for the given price feeds.
 2. Calls the Pyth Aptos contract with the update data.
 
-You can run this example with `npm run example-relay`. A full command that updates BTC and ETH prices on the BNB Chain testnet network looks like so:
+You can run this example with `npm run example-relay`. A full command that updates BTC and ETH prices on the BNB Chain testnet network looks like this:
 
 ```bash
 export APTOS_KEY = "0x...";
