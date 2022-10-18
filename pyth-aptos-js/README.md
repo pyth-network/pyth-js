@@ -65,7 +65,7 @@ module example::your_module {
 
     public fun do_something(user: &signer, pyth_update_data: vector<vector<u8>>) {
 
-        // First update the Pyth price feeds
+        // First update the Pyth price feeds. The user pays the fee for the update. 
         let coins = coin::withdraw(user, pyth::get_update_fee());
         pyth::update_price_feeds(pyth_update_data, coins);
 
@@ -85,7 +85,7 @@ We strongly recommend reading our guide which explains [how to work with Pyth pr
 Many applications additionally need to display Pyth prices off-chain, for example, in their frontend application.
 The `AptosPriceServiceConnection` provides two different ways to fetch the current Pyth price.
 The code blocks below assume that the `connection` and `priceIds` objects have been initialized as shown above.
-The first method is a single shot query:
+The first method is a single-shot query:
 
 ```typescript
 // `getLatestPriceFeeds` returns a `PriceFeed` for each price id. It contains all information about a price and has
@@ -104,11 +104,14 @@ This method is useful if you want to show continuously updating real-time prices
 // Subscribe to the price feeds given by `priceId`. The callback will be invoked every time the requested feed
 // gets a price update.
 connection.subscribePriceFeedUpdates(priceIds, (priceFeed) => {
-  console.log("Received a new price feed update!");
-  console.log(priceFeed.getPriceNoOlderThan(60));
+  console.log(`Received update for ${priceFeed.id}: ${priceFeed.getPriceNoOlderThan(60)}`);
 });
-```
 
+// When using the subscription, make sure to close the websocket upon termination to finish the process gracefully.
+setTimeout(() => {
+  connection.closeWebSocket();
+}, 60000);
+```
 
 ### Example
 
