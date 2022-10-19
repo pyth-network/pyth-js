@@ -141,8 +141,9 @@ Price updates are not submitted to the Aptos networks automatically: rather, whe
 
 ## Price Service endpoints
 
-We provide a public endpoint for the Price Service for Testnet, and will provide one for Mainnet on launch day.
+We provide public endpoints for the price service, although it is strongly recommended to host your own instance.
 
 | Aptos Network | Price Service URL               |
 | ------------- | ------------------------------- |
 | Testnet       | https://xc-testnet.pyth.network |
+| Mainnet       | https://xc-mainnet.pyth.network |
