@@ -1,6 +1,6 @@
 services:
   spy:
-    image: ghcr.io/wormhole-foundation/guardiand:v2.10.3
+    image: ghcr.io/wormhole-foundation/guardiand:v2.13.1
     command:
       - "spy"
       - "--nodeKey"
