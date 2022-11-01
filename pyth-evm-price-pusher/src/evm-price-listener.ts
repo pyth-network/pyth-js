@@ -54,15 +54,13 @@ export class EvmPriceListener implements PriceListener {
       this.startSubscription();
     } else {
       console.log(
-        "The target network RPC endpoint is not Websocket. Using polling instead..."
+        "The target network RPC endpoint is not Websocket. So only polling is used..."
       );
-      setInterval(this.pollPrices.bind(this), this.pollingFrequency * 1000);
     }
 
-    // Poll the prices to have values in the beginning until updates arrive.
-    console.log(
-      "Polling the prices in the beginning in order to set the initial values."
-    );
+    console.log(`Polling the prices every ${this.pollingFrequency} seconds...`);
+    setInterval(this.pollPrices.bind(this), this.pollingFrequency * 1000);
+
     await this.pollPrices();
   }
 
@@ -134,7 +132,7 @@ export class EvmPriceListener implements PriceListener {
     return {
       conf: priceRaw.conf,
       price: priceRaw.price,
-      publishTime: priceRaw.publishTime,
+      publishTime: Number(priceRaw.publishTime),
     };
   }
 }
