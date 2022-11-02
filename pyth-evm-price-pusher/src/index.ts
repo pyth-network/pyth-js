@@ -15,10 +15,11 @@ import { readPriceConfigFile } from "./price-config";
 const argv = yargs(hideBin(process.argv))
   .option("evm-endpoint", {
     description:
-      "RPC endpoint URL for the EVM network. If you provide a websocket RPC endpoint (`ws[s]://...`), " +
-      "the price pusher will use event subscriptions to read the current EVM price. If you provide " +
-      "a normal HTTP endpoint, the pusher will periodically poll for updates. The polling interval " +
-      "is configurable via the `evm-polling-frequency` command-line argument",
+      "RPC endpoint URL for the EVM network. If you provide a normal HTTP endpoint, the pusher " +
+      "will periodically poll for updates. The polling interval is configurable via the " +
+      "`evm-polling-frequency` command-line argument. If you provide a websocket RPC " +
+      "endpoint (`ws[s]://...`), the price pusher will use event subscriptions to read " +
+      "the current EVM price in addition to polling. ",
     type: "string",
     required: true,
   })

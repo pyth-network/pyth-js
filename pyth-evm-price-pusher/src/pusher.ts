@@ -201,6 +201,9 @@ export class Pusher {
 
     console.log(`Analyzing price ${priceConfig.alias} (${priceId})`);
 
+    console.log("Source latest price: ", sourceLatestPrice);
+    console.log("Target latest price: ", targetLatestPrice);
+
     console.log(
       `Time difference: ${timeDifference} (< ${priceConfig.timeDifference}?)`
     );

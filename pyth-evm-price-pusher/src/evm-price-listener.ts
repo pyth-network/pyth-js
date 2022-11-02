@@ -54,15 +54,14 @@ export class EvmPriceListener implements PriceListener {
       this.startSubscription();
     } else {
       console.log(
-        "The target network RPC endpoint is not Websocket. Using polling instead..."
+        "The target network RPC endpoint is not Websocket. " +
+          "Listening for updates only via polling...."
       );
-      setInterval(this.pollPrices.bind(this), this.pollingFrequency * 1000);
     }
 
-    // Poll the prices to have values in the beginning until updates arrive.
-    console.log(
-      "Polling the prices in the beginning in order to set the initial values."
-    );
+    console.log(`Polling the prices every ${this.pollingFrequency} seconds...`);
+    setInterval(this.pollPrices.bind(this), this.pollingFrequency * 1000);
+
     await this.pollPrices();
   }
 
@@ -100,7 +99,7 @@ export class EvmPriceListener implements PriceListener {
       publishTime: Number(event.returnValues.publishTime),
     };
 
-    this.latestPriceInfo.set(priceId, priceInfo);
+    this.updateLatestPriceInfo(priceId, priceInfo);
   }
 
   private async pollPrices() {
@@ -108,7 +107,7 @@ export class EvmPriceListener implements PriceListener {
     for (const priceId of this.priceIds) {
       const currentPriceInfo = await this.getOnChainPriceInfo(priceId);
       if (currentPriceInfo !== undefined) {
-        this.latestPriceInfo.set(priceId, currentPriceInfo);
+        this.updateLatestPriceInfo(priceId, currentPriceInfo);
       }
     }
   }
@@ -134,7 +133,23 @@ export class EvmPriceListener implements PriceListener {
     return {
       conf: priceRaw.conf,
       price: priceRaw.price,
-      publishTime: priceRaw.publishTime,
+      publishTime: Number(priceRaw.publishTime),
     };
+  }
+
+  private updateLatestPriceInfo(priceId: HexString, observedPrice: PriceInfo) {
+    const cachedLatestPriceInfo = this.getLatestPriceInfo(priceId);
+
+    // Ignore the observed price if the cache already has newer
+    // price. This could happen because we are using polling and
+    // subscription at the same time.
+    if (
+      cachedLatestPriceInfo !== undefined &&
+      cachedLatestPriceInfo.publishTime > observedPrice.publishTime
+    ) {
+      return;
+    }
+
+    this.latestPriceInfo.set(priceId, observedPrice);
   }
 }
