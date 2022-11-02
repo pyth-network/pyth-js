@@ -54,7 +54,8 @@ export class EvmPriceListener implements PriceListener {
       this.startSubscription();
     } else {
       console.log(
-        "The target network RPC endpoint is not Websocket. So only polling is used..."
+        "The target network RPC endpoint is not Websocket. " +
+          "Listening for updates only via polling...."
       );
     }
 
@@ -98,7 +99,7 @@ export class EvmPriceListener implements PriceListener {
       publishTime: Number(event.returnValues.publishTime),
     };
 
-    this.latestPriceInfo.set(priceId, priceInfo);
+    this.updateLatestPriceInfo(priceId, priceInfo);
   }
 
   private async pollPrices() {
@@ -106,7 +107,7 @@ export class EvmPriceListener implements PriceListener {
     for (const priceId of this.priceIds) {
       const currentPriceInfo = await this.getOnChainPriceInfo(priceId);
       if (currentPriceInfo !== undefined) {
-        this.latestPriceInfo.set(priceId, currentPriceInfo);
+        this.updateLatestPriceInfo(priceId, currentPriceInfo);
       }
     }
   }
@@ -134,5 +135,21 @@ export class EvmPriceListener implements PriceListener {
       price: priceRaw.price,
       publishTime: Number(priceRaw.publishTime),
     };
+  }
+
+  private updateLatestPriceInfo(priceId: HexString, observedPrice: PriceInfo) {
+    const cachedLatestPriceInfo = this.getLatestPriceInfo(priceId);
+
+    // Ignore the observed price if the cache already has newer
+    // price. This could happen because we are using polling and
+    // subscription at the same time.
+    if (
+      cachedLatestPriceInfo !== undefined &&
+      cachedLatestPriceInfo.publishTime > observedPrice.publishTime
+    ) {
+      return;
+    }
+
+    this.latestPriceInfo.set(priceId, observedPrice);
   }
 }
