@@ -62,10 +62,11 @@ docker run public.ecr.aws/pyth-network/xc-evm-price-pusher:v<version> -- <above-
 
 The program accepts the following command line arguments:
 
-- `evm-endpoint`: RPC endpoint URL for the EVM network. If you provide a websocket RPC endpoint (`ws[s]://...`),
-  the price pusher will use event subscriptions to read the current EVM price. If you provide a normal
-  HTTP endpoint, the pusher will periodically poll for updates. The polling interval is configurable via
-  the `evm-polling-frequency` command-line argument (described below).
+- `evm-endpoint`: RPC endpoint URL for the EVM network. If you provide a normal HTTP endpoint,
+  the pusher will periodically poll for updates. The polling interval is configurable via the
+  `evm-polling-frequency` command-line argument (described below). If you provide a websocket RPC endpoint
+  (`ws[s]://...`), the price pusher will use event subscriptions to read the current EVM
+  price in addition to polling.
 - `mnemonic-file`: Path to payer mnemonic (private key) file.
 - `pyth-contract`: The Pyth contract address. Provide the network name on which Pyth is deployed
   or the Pyth contract address if you use a local network.

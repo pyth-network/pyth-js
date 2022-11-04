@@ -24,4 +24,5 @@ export const CONTRACT_ADDR: Record<string, string> = {
   optimism: "0xff1a0f4744e8582DF1aE09D5611b887B6a12925C",
   aurora: "0xF89C7b475821EC3fDC2dC8099032c05c6c0c9AB9",
   arbitrum: "0xff1a0f4744e8582DF1aE09D5611b887B6a12925C",
+  optimism_goerli: "0xff1a0f4744e8582DF1aE09D5611b887B6a12925C",
 };

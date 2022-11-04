@@ -121,7 +121,6 @@ export class ResilientWebSocket {
     }
 
     this.pingTimeout = setTimeout(() => {
-      console.log(this);
       this.logger?.warn(`Connection timed out. Reconnecting...`);
       this.wsClient?.terminate();
       this.restartUnexpectedClosedWebsocket();
