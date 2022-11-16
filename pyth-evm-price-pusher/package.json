@@ -33,8 +33,6 @@
   "devDependencies": {
     "@types/ethereum-protocol": "^1.0.2",
     "@types/jest": "^27.4.1",
-    "@types/web3": "~1.0.20",
-    "@types/web3-provider-engine": "^14.0.1",
     "@types/yargs": "^17.0.10",
     "@typescript-eslint/eslint-plugin": "^5.20.0",
     "@typescript-eslint/parser": "^5.20.0",
@@ -47,10 +45,10 @@
   "dependencies": {
     "@pythnetwork/pyth-evm-js": "^1.0.0",
     "@pythnetwork/pyth-sdk-solidity": "^1.0.1",
-    "@truffle/hdwallet-provider": "^2.0.8",
+    "@truffle/hdwallet-provider": "^2.1.1",
     "joi": "^17.6.0",
-    "web3": "^1.5.3",
-    "web3-eth-contract": "^1.7.5",
+    "web3": "^1.8.1",
+    "web3-eth-contract": "^1.8.1",
     "yaml": "^2.1.1",
     "yargs": "^17.5.1"
   }

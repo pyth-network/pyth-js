@@ -11,6 +11,7 @@ import {
   isWsEndpoint,
   removeLeading0x,
 } from "./utils";
+import { createWeb3Provider } from "./web3-utils";
 
 export class EvmPriceListener implements PriceListener {
   private pythContract: Contract;
@@ -37,7 +38,7 @@ export class EvmPriceListener implements PriceListener {
 
     this.pollingFrequency = config.pollingFrequency;
 
-    const web3 = new Web3(endpoint);
+    const web3 = new Web3(createWeb3Provider(endpoint));
     this.isWs = isWsEndpoint(endpoint);
 
     this.pythContract = new web3.eth.Contract(

@@ -10,10 +10,15 @@ import Web3 from "web3";
 import HDWalletProvider from "@truffle/hdwallet-provider";
 import { PriceConfig } from "./price-config";
 import { TransactionReceipt } from "ethereum-protocol";
+import { createWeb3Provider } from "./web3-utils";
+import { Provider } from "web3/providers";
 
 export class Pusher {
   private connection: EvmPriceServiceConnection;
   private pythContract: Contract;
+  private evmEndpoint: string;
+  private mnemonic: string;
+  private pythContractAddr: string;
   private targetPriceListener: PriceListener;
   private sourcePriceListener: PriceListener;
   private priceConfigs: PriceConfig[];
@@ -39,18 +44,26 @@ export class Pusher {
 
     this.cooldownDuration = config.cooldownDuration;
 
+    this.evmEndpoint = evmEndpoint;
+    this.mnemonic = mnemonic;
+    this.pythContractAddr = pythContractAddr;
+
+    this.pythContract = this.createWeb3PayerPythContract();
+  }
+
+  private createWeb3PayerPythContract(): Contract {
     const provider = new HDWalletProvider({
       mnemonic: {
-        phrase: mnemonic,
+        phrase: this.mnemonic,
       },
-      providerOrUrl: evmEndpoint,
+      providerOrUrl: createWeb3Provider(this.evmEndpoint) as Provider,
     });
 
     const web3 = new Web3(provider as any);
 
-    this.pythContract = new web3.eth.Contract(
+    return new web3.eth.Contract(
       AbstractPythAbi as any,
-      pythContractAddr,
+      this.pythContractAddr,
       {
         from: provider.getAddress(0),
       }
@@ -147,6 +160,13 @@ export class Pusher {
         ) {
           console.error("Payer is out of balance, please top it up.");
           throw err;
+        }
+
+        if (err.message.includes("connection not open on send")) {
+          console.error(
+            "Web3 connection is closed. Recreating the connection and skipping this push."
+          );
+          this.pythContract = this.createWeb3PayerPythContract();
         }
 
         console.error("An unidentified error has occured:");
