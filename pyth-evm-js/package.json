@@ -30,7 +30,7 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@pythnetwork/pyth-sdk-solidity": "^1.0.1",
+    "@pythnetwork/pyth-sdk-solidity": "^2.2.0",
     "@truffle/hdwallet-provider": "^2.0.8",
     "@types/ethereum-protocol": "^1.0.2",
     "@types/jest": "^27.4.1",
