@@ -10,10 +10,13 @@ import Web3 from "web3";
 import HDWalletProvider from "@truffle/hdwallet-provider";
 import { PriceConfig } from "./price-config";
 import { TransactionReceipt } from "ethereum-protocol";
+import { Provider } from "web3/providers";
+import { PythContractFactory } from "./pyth-contract-factory";
 
 export class Pusher {
   private connection: EvmPriceServiceConnection;
   private pythContract: Contract;
+  private pythContractFactory: PythContractFactory;
   private targetPriceListener: PriceListener;
   private sourcePriceListener: PriceListener;
   private priceConfigs: PriceConfig[];
@@ -22,9 +25,7 @@ export class Pusher {
 
   constructor(
     connection: EvmPriceServiceConnection,
-    evmEndpoint: string,
-    mnemonic: string,
-    pythContractAddr: string,
+    pythContractFactory: PythContractFactory,
     targetPriceListener: PriceListener,
     sourcePriceListener: PriceListener,
     priceConfigs: PriceConfig[],
@@ -39,22 +40,8 @@ export class Pusher {
 
     this.cooldownDuration = config.cooldownDuration;
 
-    const provider = new HDWalletProvider({
-      mnemonic: {
-        phrase: mnemonic,
-      },
-      providerOrUrl: evmEndpoint,
-    });
-
-    const web3 = new Web3(provider as any);
-
-    this.pythContract = new web3.eth.Contract(
-      AbstractPythAbi as any,
-      pythContractAddr,
-      {
-        from: provider.getAddress(0),
-      }
-    );
+    this.pythContractFactory = pythContractFactory;
+    this.pythContract = this.pythContractFactory.createPythContractWithPayer();
   }
 
   async start() {
@@ -149,9 +136,17 @@ export class Pusher {
           throw err;
         }
 
+        if (err.message.includes("connection not open on send")) {
+          console.error(
+            "Web3 connection is closed. Recreating the connection and skipping this push."
+          );
+          this.pythContract =
+            this.pythContractFactory.createPythContractWithPayer();
+        }
+
         console.error("An unidentified error has occured:");
-        console.error(err, receipt);
-        console.error("Skipping this push.");
+        console.error(receipt);
+        throw err;
       });
   }
 
