@@ -11,6 +11,7 @@ import { EvmPriceListener } from "./evm-price-listener";
 import { PythPriceListener } from "./pyth-price-listener";
 import fs from "fs";
 import { readPriceConfigFile } from "./price-config";
+import { PythContractFactory } from "./pyth-contract-factory";
 
 const argv = yargs(hideBin(process.argv))
   .option("evm-endpoint", {
@@ -69,7 +70,6 @@ const argv = yargs(hideBin(process.argv))
   })
   .parseSync();
 
-const network = argv.evmEndpoint;
 let pythContractAddr: string;
 
 if (CONTRACT_ADDR[argv.pythContract] !== undefined) {
@@ -85,9 +85,14 @@ async function run() {
     logger: console,
   });
 
+  const pythContractFactory = new PythContractFactory(
+    argv.evmEndpoint,
+    fs.readFileSync(argv.mnemonicFile, "utf-8").trim(),
+    pythContractAddr
+  );
+
   const evmPriceListener = new EvmPriceListener(
-    network,
-    pythContractAddr,
+    pythContractFactory,
     priceConfigs,
     {
       pollingFrequency: argv.evmPollingFrequency,
@@ -98,9 +103,7 @@ async function run() {
 
   const handler = new Pusher(
     connection,
-    network,
-    fs.readFileSync(argv.mnemonicFile, "utf-8").trim(),
-    pythContractAddr,
+    pythContractFactory,
     evmPriceListener,
     pythPriceListener,
     priceConfigs,

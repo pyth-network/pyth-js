@@ -5,26 +5,25 @@ import Web3 from "web3";
 import { Contract, EventData } from "web3-eth-contract";
 import { PriceConfig } from "./price-config";
 import { PriceInfo, PriceListener } from "./price-listener";
+import { PythContractFactory } from "./pyth-contract-factory";
 import {
   addLeading0x,
   DurationInSeconds,
   isWsEndpoint,
   removeLeading0x,
 } from "./utils";
-import { createWeb3Provider } from "./web3-utils";
 
 export class EvmPriceListener implements PriceListener {
+  private pythContractFactory: PythContractFactory;
   private pythContract: Contract;
   private latestPriceInfo: Map<HexString, PriceInfo>;
   private priceIds: HexString[];
   private priceIdToAlias: Map<HexString, string>;
 
-  private isWs: boolean;
   private pollingFrequency: DurationInSeconds;
 
   constructor(
-    endpoint: string,
-    pythContractAddr: string,
+    pythContractFactory: PythContractFactory,
     priceConfigs: PriceConfig[],
     config: {
       pollingFrequency: DurationInSeconds;
@@ -38,19 +37,14 @@ export class EvmPriceListener implements PriceListener {
 
     this.pollingFrequency = config.pollingFrequency;
 
-    const web3 = new Web3(createWeb3Provider(endpoint));
-    this.isWs = isWsEndpoint(endpoint);
-
-    this.pythContract = new web3.eth.Contract(
-      AbstractPythAbi as any,
-      pythContractAddr
-    );
+    this.pythContractFactory = pythContractFactory;
+    this.pythContract = this.pythContractFactory.createPythContract();
   }
 
   // This method should be awaited on and once it finishes it has the latest value
   // for the given price feeds (if they exist).
   async start() {
-    if (this.isWs) {
+    if (this.pythContractFactory.hasWebsocketProvider()) {
       console.log("Subscribing to the target network pyth contract events...");
       this.startSubscription();
     } else {
@@ -82,9 +76,8 @@ export class EvmPriceListener implements PriceListener {
 
   private onPriceFeedUpdate(err: Error | null, event: EventData) {
     if (err !== null) {
-      console.error("PriceFeedUpdate EventEmitter received an error.");
-      console.error(err);
-      return;
+      console.error("PriceFeedUpdate EventEmitter received an error..");
+      throw err;
     }
 
     const priceId = removeLeading0x(event.returnValues.id);
