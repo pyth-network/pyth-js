@@ -21,4 +21,4 @@ We require the [pre-commit hooks](https://pre-commit.com/) defined in [`.pre-com
 We use [Semantic Versioning](https://semver.org/) for our releases. In order to release a new version of any of the packages and publish it to npm, follow these steps:
 
 1. Run `npm version <new version number> --no-git-tag-version`. This command will update the version of the package. Then push your changes to github.
-2. Once your change is merged into `main`, create a release with tag `<package>:v<new version number>` like `pyth-evm-js:v1.5.2`, and a github action will automatically publish the new version of this package to npm.
+2. Once your change is merged into `main`, create a release with tag `<package>-v<new version number>` like `pyth-evm-js-v1.5.2`, and a github action will automatically publish the new version of this package to npm.
