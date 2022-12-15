@@ -5,12 +5,8 @@ import {
 import { addLeading0x, DurationInSeconds, sleep } from "./utils";
 import { PriceInfo, PriceListener } from "./price-listener";
 import { Contract } from "web3-eth-contract";
-import AbstractPythAbi from "@pythnetwork/pyth-sdk-solidity/abis/AbstractPyth.json";
-import Web3 from "web3";
-import HDWalletProvider from "@truffle/hdwallet-provider";
 import { PriceConfig } from "./price-config";
 import { TransactionReceipt } from "ethereum-protocol";
-import { Provider } from "web3/providers";
 import { PythContractFactory } from "./pyth-contract-factory";
 
 export class Pusher {

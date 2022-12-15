@@ -1,17 +1,9 @@
 import { HexString } from "@pythnetwork/pyth-evm-js";
-
-import AbstractPythAbi from "@pythnetwork/pyth-sdk-solidity/abis/AbstractPyth.json";
-import Web3 from "web3";
 import { Contract, EventData } from "web3-eth-contract";
 import { PriceConfig } from "./price-config";
 import { PriceInfo, PriceListener } from "./price-listener";
 import { PythContractFactory } from "./pyth-contract-factory";
-import {
-  addLeading0x,
-  DurationInSeconds,
-  isWsEndpoint,
-  removeLeading0x,
-} from "./utils";
+import { addLeading0x, DurationInSeconds, removeLeading0x } from "./utils";
 
 export class EvmPriceListener implements PriceListener {
   private pythContractFactory: PythContractFactory;
