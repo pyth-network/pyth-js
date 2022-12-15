@@ -113,11 +113,16 @@ export class Pusher {
       .on("error", (err: Error, receipt: TransactionReceipt) => {
         if (
           err.message.includes(
-            "no prices in the submitted batch have fresh prices, so this update will have no effect"
+            "VM Exception while processing transaction: revert"
           )
         ) {
+          // Since we are using custom error structs on solidity the rejection
+          // doesn't return any information why the call has reverted. Assuming that
+          // the update data is valid there is no possible rejection cause other than
+          // the target chain price being already updated.
           console.log(
-            "The target chain price has already updated, Skipping this push."
+            "Execution reverted. With high probablity, the target chain price " +
+              "has already updated, Skipping this push."
           );
           return;
         }
