@@ -115,7 +115,7 @@ async function run() {
   );
 
   const updateFee = await pythContract.methods
-    .getUpdateFee(priceFeedUpdateData.length)
+    .getUpdateFee(priceFeedUpdateData)
     .call();
   console.log(`Update fee: ${updateFee}`);
 
