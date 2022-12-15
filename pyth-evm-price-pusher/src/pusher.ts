@@ -96,7 +96,7 @@ export class Pusher {
     );
 
     const updateFee = await this.pythContract.methods
-      .getUpdateFee(priceFeedUpdateData.length)
+      .getUpdateFee(priceFeedUpdateData)
       .call();
     console.log(`Update fee: ${updateFee}`);
 
