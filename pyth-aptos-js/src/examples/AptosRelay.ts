@@ -45,7 +45,11 @@ async function run() {
   );
 
   // Update the Pyth Contract using this update data
-  const sender = new AptosAccount(Buffer.from(process.env[APTOS_KEY]!, "hex"));
+  if (process.env[APTOS_KEY] === undefined) {
+    throw new Error(`${APTOS_KEY} environment variable should be set.`);
+  }
+
+  const sender = new AptosAccount(Buffer.from(process.env[APTOS_KEY], "hex"));
   const client = new AptosClient(argv.fullNode);
   const result = await client.generateSignSubmitWaitForTransaction(
     sender,
