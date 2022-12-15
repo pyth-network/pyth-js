@@ -136,14 +136,6 @@ export class Pusher {
           throw err;
         }
 
-        if (err.message.includes("connection not open on send")) {
-          console.error(
-            "Web3 connection is closed. Recreating the connection and skipping this push."
-          );
-          this.pythContract =
-            this.pythContractFactory.createPythContractWithPayer();
-        }
-
         console.error("An unidentified error has occured:");
         console.error(receipt);
         throw err;
