@@ -5,12 +5,8 @@ import {
 import { addLeading0x, DurationInSeconds, sleep } from "./utils";
 import { PriceInfo, PriceListener } from "./price-listener";
 import { Contract } from "web3-eth-contract";
-import AbstractPythAbi from "@pythnetwork/pyth-sdk-solidity/abis/AbstractPyth.json";
-import Web3 from "web3";
-import HDWalletProvider from "@truffle/hdwallet-provider";
 import { PriceConfig } from "./price-config";
 import { TransactionReceipt } from "ethereum-protocol";
-import { Provider } from "web3/providers";
 import { PythContractFactory } from "./pyth-contract-factory";
 
 export class Pusher {
@@ -96,7 +92,7 @@ export class Pusher {
     );
 
     const updateFee = await this.pythContract.methods
-      .getUpdateFee(priceFeedUpdateData.length)
+      .getUpdateFee(priceFeedUpdateData)
       .call();
     console.log(`Update fee: ${updateFee}`);
 
@@ -113,11 +109,16 @@ export class Pusher {
       .on("error", (err: Error, receipt: TransactionReceipt) => {
         if (
           err.message.includes(
-            "no prices in the submitted batch have fresh prices, so this update will have no effect"
+            "VM Exception while processing transaction: revert"
           )
         ) {
+          // Since we are using custom error structs on solidity the rejection
+          // doesn't return any information why the call has reverted. Assuming that
+          // the update data is valid there is no possible rejection cause other than
+          // the target chain price being already updated.
           console.log(
-            "The target chain price has already updated, Skipping this push."
+            "Execution reverted. With high probablity, the target chain price " +
+              "has already updated, Skipping this push."
           );
           return;
         }
@@ -134,14 +135,6 @@ export class Pusher {
         ) {
           console.error("Payer is out of balance, please top it up.");
           throw err;
-        }
-
-        if (err.message.includes("connection not open on send")) {
-          console.error(
-            "Web3 connection is closed. Recreating the connection and skipping this push."
-          );
-          this.pythContract =
-            this.pythContractFactory.createPythContractWithPayer();
         }
 
         console.error("An unidentified error has occured:");
