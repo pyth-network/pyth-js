@@ -12,7 +12,14 @@ export class PythContractFactory {
     private pythContractAddr: string
   ) {}
 
-  createPythContract(): Contract {
+  /**
+   * This method creates a web3 Pyth contract with payer (based on HDWalletProvider). As this
+   * provider is an HDWalletProvider it does not support subscriptions even if the
+   * endpoint is a websocket endpoint.
+   *
+   * @returns Pyth contract
+   */
+  createPythContractWithPayer(): Contract {
     const provider = new HDWalletProvider({
       mnemonic: {
         phrase: this.mnemonic,
@@ -29,6 +36,18 @@ export class PythContractFactory {
         from: provider.getAddress(0),
       }
     );
+  }
+
+  /**
+   * This method creates a web3 Pyth contract with the given endpoint as its provider. If
+   * the endpoint is a websocket endpoint the contract will support subscriptions.
+   *
+   * @returns Pyth contract
+   */
+  createPythContract(): Contract {
+    const provider = this.createWeb3Provider();
+    const web3 = new Web3(provider);
+    return new web3.eth.Contract(AbstractPythAbi as any, this.pythContractAddr);
   }
 
   hasWebsocketProvider(): boolean {

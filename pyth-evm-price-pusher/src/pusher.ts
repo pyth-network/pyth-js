@@ -41,7 +41,7 @@ export class Pusher {
     this.cooldownDuration = config.cooldownDuration;
 
     this.pythContractFactory = pythContractFactory;
-    this.pythContract = this.pythContractFactory.createPythContract();
+    this.pythContract = this.pythContractFactory.createPythContractWithPayer();
   }
 
   async start() {
@@ -140,7 +140,8 @@ export class Pusher {
           console.error(
             "Web3 connection is closed. Recreating the connection and skipping this push."
           );
-          this.pythContract = this.pythContractFactory.createPythContract();
+          this.pythContract =
+            this.pythContractFactory.createPythContractWithPayer();
         }
 
         console.error("An unidentified error has occured:");
