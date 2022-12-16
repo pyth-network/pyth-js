@@ -1,6 +1,7 @@
 services:
   spy:
-    image: ghcr.io/wormhole-foundation/guardiand:v2.13.1
+    # Find latest Guardian images in https://github.com/wormhole-foundation/wormhole/pkgs/container/guardiand
+    image: ghcr.io/wormhole-foundation/guardiand:v.2.14.5
     command:
       - "spy"
       - "--nodeKey"
@@ -12,9 +13,10 @@ services:
       - "--network"
       - "/wormhole/mainnet/2"
       - "--logLevel"
-      - "debug"
+      - "warn"
   price-service:
-    image: public.ecr.aws/pyth-network/xc-server:v2.0.0
+    # Find latest price service images https://gallery.ecr.aws/pyth-network/xc-server
+    image: public.ecr.aws/pyth-network/xc-server:v2.2.3
     environment:
       SPY_SERVICE_HOST: "spy:7072"
       SPY_SERVICE_FILTERS: |
@@ -32,7 +34,7 @@ services:
       PROM_PORT: "8081"
       READINESS_SPY_SYNC_TIME_SECONDS: "20"
       READINESS_NUM_LOADED_SYMBOLS: "50"
-      LOG_LEVEL: debug
+      LOG_LEVEL: warning
     healthcheck:
       test:
         [
