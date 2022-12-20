@@ -34,13 +34,13 @@ async function run() {
   });
 
   const priceIds = argv.priceIds as string[];
-  console.log(priceIds);
-  const priceFeeds = await connection.getLatestPriceFeeds(priceIds);
-  console.log(priceFeeds);
-  console.log(priceFeeds?.at(0)?.getPriceNoOlderThan(60));
+  // console.log(priceIds);
+  // const priceFeeds = await connection.getLatestPriceFeeds(priceIds);
+  // console.log(priceFeeds);
+  // console.log(priceFeeds?.at(0)?.getPriceNoOlderThan(60));
 
-  const updateData = await connection.getPriceFeedsUpdateData(priceIds);
-  console.log(updateData);
+  // const updateData = await connection.getPriceFeedsUpdateData(priceIds);
+  // console.log(updateData);
 
   console.log("Subscribing to price feed updates.");
 
