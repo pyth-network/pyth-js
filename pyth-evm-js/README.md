@@ -46,7 +46,7 @@ const priceUpdateData = await connection.getPriceFeedsUpdateData(priceIds);
 // `pythContract` below is a web3.js contract; if you wish to use ethers, you need to change it accordingly.
 // You can find the Pyth interface ABI in @pythnetwork/pyth-sdk-solidity npm package.
 const updateFee = await pythContract.methods
-  .getUpdateFee(priceFeedUpdateData)
+  .getUpdateFee(priceUpdateData)
   .call();
 // Calling someContract method
 // `someContract` below is a web3.js contract; if you wish to use ethers, you need to change it accordingly.
