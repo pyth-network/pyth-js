@@ -64,6 +64,12 @@ const CONFIG: Record<string, any> = {
   mumbai: {
     network: "https://matic-mumbai.chainstacklabs.com",
   },
+  kcc: {
+    network: "https://rpc-mainnet.kcc.network",
+  },
+  kcc_testnet: {
+    network: "https://rpc-testnet.kcc.network",
+  },
   aurora_testnet: {
     network: "https://testnet.aurora.dev",
   },
