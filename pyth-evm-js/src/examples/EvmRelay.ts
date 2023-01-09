@@ -2,17 +2,15 @@ import Web3 from "web3";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
-import { EvmPriceServiceConnection, CONTRACT_ADDR } from "../index";
+import { EvmPriceServiceConnection } from "../index";
 import HDWalletProvider from "@truffle/hdwallet-provider";
 import PythInterfaceAbi from "@pythnetwork/pyth-sdk-solidity/abis/IPyth.json";
 
 const argv = yargs(hideBin(process.argv))
   .option("network", {
-    description:
-      "Network to relay on. Provide node url if you are using anything other than " +
-      "[bnb_testnet, fuji, fantom_testnet, ropsten, goerli, mumbai]",
+    description: "RPC of the network to relay on.",
+    type: "string",
     required: true,
-    default: "bsc_testnet",
   })
   .option("endpoint", {
     description:
@@ -21,10 +19,9 @@ const argv = yargs(hideBin(process.argv))
     required: true,
   })
   .option("pyth-contract", {
-    description:
-      "Pyth contract address. You should provide this value if you are using a local network",
+    description: "Pyth contract address.",
     type: "string",
-    required: false,
+    required: true,
   })
   .option("price-ids", {
     description:
@@ -45,45 +42,8 @@ const argv = yargs(hideBin(process.argv))
   })
   .parseSync();
 
-const CONFIG: Record<string, any> = {
-  bnb_testnet: {
-    network: "https://data-seed-prebsc-1-s1.binance.org:8545",
-  },
-  fuji: {
-    network: "https://api.avax-test.network/ext/bc/C/rpc",
-  },
-  fantom_testnet: {
-    network: "https://rpc.testnet.fantom.network/",
-  },
-  ropsten: {
-    network: "https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-  },
-  goerli: {
-    network: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-  },
-  mumbai: {
-    network: "https://matic-mumbai.chainstacklabs.com",
-  },
-  aurora_testnet: {
-    network: "https://testnet.aurora.dev",
-  },
-};
-
-let network: string;
-let pythContractAddr: string;
-
-if (CONFIG[argv.network] !== undefined) {
-  network = CONFIG[argv.network].network;
-  pythContractAddr = CONTRACT_ADDR[argv.network];
-} else {
-  network = argv.network;
-  if (argv.pythContract === undefined) {
-    throw new Error(
-      "You should provide pyth contract address when using a custom network"
-    );
-  }
-  pythContractAddr = argv.pythContract;
-}
+const network = argv.network;
+const pythContractAddr = argv.pythContract;
 
 const connection = new EvmPriceServiceConnection(argv.endpoint);
 
@@ -124,6 +84,10 @@ async function run() {
     .send({ value: updateFee })
     .on("transactionHash", (hash: string) => {
       console.log(`Tx hash: ${hash}`);
+    })
+    .on("error", (err: any, receipt: any) => {
+      console.error(receipt);
+      throw err;
     });
 
   provider.engine.stop();
