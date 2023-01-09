@@ -36,9 +36,9 @@ const priceIds = [
 ];
 
 // In order to use Pyth prices in your protocol you need to submit the price update data to Pyth contract in your target
-// chain. `getPriceUpdateData` creates the update data which can be submitted to your contract. Then your contract should
+// chain. `getPriceFeedsUpdateData` creates the update data which can be submitted to your contract. Then your contract should
 // call the Pyth Contract with this data.
-const priceUpdateData = await connection.getPriceUpdateData(priceIds);
+const priceUpdateData = await connection.getPriceFeedsUpdateData(priceIds);
 
 // If the user is paying the price update fee, you need to fetch it from the Pyth contract.
 // Please refer to https://docs.pyth.network/consume-data/on-demand#fees for more information.
@@ -46,7 +46,7 @@ const priceUpdateData = await connection.getPriceUpdateData(priceIds);
 // `pythContract` below is a web3.js contract; if you wish to use ethers, you need to change it accordingly.
 // You can find the Pyth interface ABI in @pythnetwork/pyth-sdk-solidity npm package.
 const updateFee = await pythContract.methods
-  .getUpdateFee(priceFeedUpdateData)
+  .getUpdateFee(priceUpdateData)
   .call();
 // Calling someContract method
 // `someContract` below is a web3.js contract; if you wish to use ethers, you need to change it accordingly.
