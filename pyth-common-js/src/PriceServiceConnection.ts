@@ -120,8 +120,7 @@ export class PriceServiceConnection {
    * Fetch latest VAA of given price ids.
    * This will throw an axios error if there is a network problem or the price service returns a non-ok response (e.g: Invalid price ids)
    *
-   * This function is coupled to wormhole implemntation and chain specific libraries use
-   * it to expose on-demand relaying functionality. 
+   * This function is coupled to wormhole implemntation.
    *
    * @param priceIds Array of hex-encoded price ids.
    * @returns Array of base64 encoded VAAs.
