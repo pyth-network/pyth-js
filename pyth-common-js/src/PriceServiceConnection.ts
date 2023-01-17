@@ -8,6 +8,13 @@ import { makeWebsocketUrl, removeLeading0xIfExists } from "./utils";
 
 export type DurationInMs = number;
 
+export type PriceFeedRequestConfig = {
+  /* Optional verbose to request for verbose information from the service */
+  verbose?: boolean;
+  /* Optional binary to include the price feeds binary update data */
+  binary?: boolean;
+};
+
 export type PriceServiceConnectionConfig = {
   /* Timeout of each request (for all of retries). Default: 5000ms */
   timeout?: DurationInMs;
@@ -20,14 +27,17 @@ export type PriceServiceConnectionConfig = {
   httpRetries?: number;
   /* Optional logger (e.g: console or any logging library) to log internal events */
   logger?: Logger;
-  /* Optional verbose to request for verbose information from the service */
+  /* Deprecated: please use priceFeedRequestConfig.verbose instead */
   verbose?: boolean;
+  /* Configuration for the price feed requests */
+  priceFeedRequestConfig?: PriceFeedRequestConfig;
 };
 
 type ClientMessage = {
   type: "subscribe" | "unsubscribe";
   ids: HexString[];
   verbose?: boolean;
+  binary?: boolean;
 };
 
 type ServerResponse = {
@@ -54,7 +64,7 @@ export class PriceServiceConnection {
 
   private logger: undefined | Logger;
 
-  private verbose: boolean;
+  private priceFeedRequestConfig: PriceFeedRequestConfig;
 
   /**
    * Custom handler for web socket errors (connection and message parsing).
@@ -79,9 +89,13 @@ export class PriceServiceConnection {
       retryDelay: axiosRetry.exponentialDelay,
     });
 
-    this.verbose = config?.verbose || false;
+    this.priceFeedRequestConfig = {
+      binary: config?.priceFeedRequestConfig?.binary,
+      verbose: config?.priceFeedRequestConfig?.verbose ?? config?.verbose,
+    };
 
     this.priceFeedCallbacks = new Map();
+
     this.logger = config?.logger;
     this.onWsError = (error: Error) => {
       this.logger?.error(error);
@@ -107,7 +121,8 @@ export class PriceServiceConnection {
     const response = await this.httpClient.get("/api/latest_price_feeds", {
       params: {
         ids: priceIds,
-        verbose: this.verbose,
+        verbose: this.priceFeedRequestConfig.verbose,
+        binary: this.priceFeedRequestConfig.binary,
       },
     });
     const priceFeedsJson = response.data as any[];
@@ -180,7 +195,8 @@ export class PriceServiceConnection {
     const message: ClientMessage = {
       ids: newPriceIds,
       type: "subscribe",
-      verbose: this.verbose,
+      verbose: this.priceFeedRequestConfig.verbose,
+      binary: this.priceFeedRequestConfig.binary,
     };
 
     await this.wsClient?.send(JSON.stringify(message));
@@ -262,7 +278,8 @@ export class PriceServiceConnection {
         const message: ClientMessage = {
           ids: Array.from(this.priceFeedCallbacks.keys()),
           type: "subscribe",
-          verbose: this.verbose,
+          verbose: this.priceFeedRequestConfig.verbose,
+          binary: this.priceFeedRequestConfig.binary,
         };
 
         this.logger?.info("Resubscribing to existing price feeds.");

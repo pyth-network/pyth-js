@@ -31,6 +31,9 @@ const argv = yargs(hideBin(process.argv))
 async function run() {
   const connection = new PriceServiceConnection(argv.endpoint, {
     logger: console, // Providing logger will allow the connection to log it's events.
+    priceFeedRequestConfig: {
+      binary: true,
+    },
   });
 
   const priceIds = argv.priceIds as string[];
@@ -46,6 +49,7 @@ async function run() {
         priceFeed.getPriceNoOlderThan(60)
       )}.`
     );
+    console.log(priceFeed.getVAA());
   });
 
   await sleep(600000);
