@@ -32,6 +32,8 @@ async function run() {
   const connection = new PriceServiceConnection(argv.endpoint, {
     logger: console, // Providing logger will allow the connection to log it's events.
     priceFeedRequestConfig: {
+      // Enable binary to include binary update data in the price feeds that is used
+      // later by calling priceFeed.getVAA()
       binary: true,
     },
   });
@@ -55,7 +57,7 @@ async function run() {
   await sleep(600000);
 
   // To close the websocket you should either unsubscribe from all
-  // price feeds or call `connection.stopWebSocket()` directly.
+  // price feeds or call `connection.closeWebSocket()` directly.
 
   console.log("Unsubscribing from price feed updates.");
   await connection.unsubscribePriceFeedUpdates(priceIds);

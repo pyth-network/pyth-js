@@ -9,9 +9,9 @@ import { makeWebsocketUrl, removeLeading0xIfExists } from "./utils";
 export type DurationInMs = number;
 
 export type PriceFeedRequestConfig = {
-  /* Optional verbose to request for verbose information from the service */
+  /* If true, include verbose information in the response */
   verbose?: boolean;
-  /* Optional binary to include the price feeds binary update data */
+  /* If true, include binary update data in the response */
   binary?: boolean;
 };
 
