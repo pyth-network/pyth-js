@@ -150,26 +150,27 @@ export class PriceServiceConnection {
   }
 
   /**
-   * Fetch VAA of given price id and publish time.
+   * Fetch the earliest VAA of the given price id that is published since the given publish time.
+   * This will throw an error if the given publish time is in the future, or if the price service does not have a db backend.
    * This will throw an axios error if there is a network problem or the price service returns a non-ok response (e.g: Invalid price id)
    *
    * This function is coupled to wormhole implemntation.
    *
    * @param priceId Hex-encoded price id.
    * @param publishTime Epoch timestamp in seconds.
-   * @returns Base64 encoded VAAs.
+   * @returns JSON object of VAA and publishTime.
    */
   async getVaa(
     priceId: HexString,
     publishTime: EpochTimeStamp
-  ): Promise<string> {
+  ): Promise<[string, EpochTimeStamp]> {
     const response = await this.httpClient.get("/api/get_vaa", {
       params: {
         id: priceId,
         publish_time: publishTime,
       },
     });
-    return response.data;
+    return [response.data.vaa, response.data.publishTime];
   }
 
   /**
