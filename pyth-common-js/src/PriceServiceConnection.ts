@@ -158,7 +158,7 @@ export class PriceServiceConnection {
    *
    * @param priceId Hex-encoded price id.
    * @param publishTime Epoch timestamp in seconds.
-   * @returns JSON object of VAA and publishTime.
+   * @returns Tuple of VAA and publishTime.
    */
   async getVaa(
     priceId: HexString,
