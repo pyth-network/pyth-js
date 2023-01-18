@@ -150,6 +150,29 @@ export class PriceServiceConnection {
   }
 
   /**
+   * Fetch VAA of given price id and publish time.
+   * This will throw an axios error if there is a network problem or the price service returns a non-ok response (e.g: Invalid price id)
+   *
+   * This function is coupled to wormhole implemntation.
+   *
+   * @param priceId Hex-encoded price id.
+   * @param publishTime Epoch timestamp in seconds.
+   * @returns Base64 encoded VAAs.
+   */
+  async getVaa(
+    priceId: HexString,
+    publishTime: EpochTimeStamp
+  ): Promise<string> {
+    const response = await this.httpClient.get("/api/get_vaa", {
+      params: {
+        id: priceId,
+        publish_time: publishTime,
+      },
+    });
+    return response.data;
+  }
+
+  /**
    * Fetch the list of available price feed ids.
    * This will throw an axios error if there is a network problem or the price service returns a non-ok response.
    *
