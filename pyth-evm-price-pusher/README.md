@@ -100,7 +100,7 @@ contains the same configuration for `BTC/USD` and `BNB/USD` on Pyth mainnet.
 
 ## Running using a standalone price service (via docker-compose)
 
-EVM price pusher communicates with [Pyth price service](https://github.com/pyth-network/pyth-crosschain/tree/main/price_service/server) to get the most recent price updates. Pyth price service listens to the
+EVM price pusher communicates with [Pyth price service]() to get the most recent price updates. Pyth price service listens to the
 Wormhole network to get latest price updates, and serves REST and websocket APIs for consumers to fetch the updates.
 Pyth hosts public endpoints for the price service; however, it is recommended to run it standalone to achieve more resiliency and
 scalability.
@@ -122,4 +122,4 @@ docker-compose -f docker-compose.testnet.sample.yaml up
 
 It will take a few minutes until all the services are up and running.
 
-[pyth price service]: https://github.com/pyth-network/pyth-crosschain/tree/main/third_party/pyth/price-service
+[pyth price service]: https://github.com/pyth-network/pyth-crosschain/tree/main/price_service/server
