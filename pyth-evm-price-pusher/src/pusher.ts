@@ -106,7 +106,7 @@ export class Pusher {
       .on("transactionHash", (hash: string) => {
         console.log(`Successful. Tx hash: ${hash}`);
       })
-      .on("error", (err: Error, receipt: TransactionReceipt) => {
+      .on("error", (err: Error, receipt?: TransactionReceipt) => {
         if (
           err.message.includes(
             "VM Exception while processing transaction: revert"
@@ -123,7 +123,10 @@ export class Pusher {
           return;
         }
 
-        if (err.message.includes("the tx doesn't have the correct nonce.")) {
+        if (
+          err.message.includes("the tx doesn't have the correct nonce.") ||
+          err.message.includes("nonce too low")
+        ) {
           console.log(
             "Multiple users are using the same accounts and nonce is incorrect. Skipping this push."
           );
