@@ -7,11 +7,10 @@ import {
   CONTRACT_ADDR,
 } from "@pythnetwork/pyth-evm-js";
 import { Controller } from "./controller";
-import { EvmOnchainPricePusher, EvmPriceListener } from "./evm";
+import { EvmPriceListener, EvmPricePusher, PythContractFactory } from "./evm";
 import { PythPriceListener } from "./pyth-price-listener";
 import fs from "fs";
 import { readPriceConfigFile } from "./price-config";
-import { PythContractFactory } from "./evm";
 
 const argv = yargs(hideBin(process.argv))
   .option("evm-endpoint", {
@@ -101,7 +100,7 @@ async function run() {
 
   const pythPriceListener = new PythPriceListener(connection, priceConfigs);
 
-  const pythContract = new EvmOnchainPricePusher(
+  const evmPricePusher = new EvmPricePusher(
     connection,
     pythContractFactory.createPythContractWithPayer()
   );
@@ -110,7 +109,7 @@ async function run() {
     priceConfigs,
     pythPriceListener,
     evmPriceListener,
-    pythContract,
+    evmPricePusher,
     {
       cooldownDuration: argv.cooldownDuration,
     }

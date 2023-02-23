@@ -5,7 +5,7 @@ import {
 } from "@pythnetwork/pyth-evm-js";
 import { Contract, EventData } from "web3-eth-contract";
 import { PriceConfig } from "./price-config";
-import { OnchainPricePusher, PriceInfo, PriceListener } from "./interface";
+import { ChainPricePusher, PriceInfo, PriceListener } from "./interface";
 import { TransactionReceipt } from "ethereum-protocol";
 import { addLeading0x, DurationInSeconds, removeLeading0x } from "./utils";
 import AbstractPythAbi from "@pythnetwork/pyth-sdk-solidity/abis/AbstractPyth.json";
@@ -149,7 +149,7 @@ export class EvmPriceListener implements PriceListener {
   }
 }
 
-export class EvmOnchainPricePusher implements OnchainPricePusher {
+export class EvmPricePusher implements ChainPricePusher {
   constructor(
     private connection: EvmPriceServiceConnection,
     private pythContract: Contract
@@ -187,7 +187,7 @@ export class EvmOnchainPricePusher implements OnchainPricePusher {
     this.pythContract.methods
       .updatePriceFeedsIfNecessary(
         priceFeedUpdateData,
-        priceIds,
+        priceIdsWith0x,
         pubTimesToPush
       )
       .send({ value: updateFee })

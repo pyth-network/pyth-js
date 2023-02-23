@@ -11,7 +11,7 @@ export interface PriceListener {
   getLatestPriceInfo(priceId: HexString): undefined | PriceInfo;
 }
 
-export interface OnchainPricePusher {
+export interface ChainPricePusher {
   updatePriceFeed(
     priceIds: string[],
     pubTimesToPush: UnixTimestamp[]
