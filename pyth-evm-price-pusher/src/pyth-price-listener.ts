@@ -1,7 +1,7 @@
 import { HexString, PriceFeed } from "@pythnetwork/pyth-evm-js";
 import { PriceServiceConnection } from "@pythnetwork/pyth-common-js";
 import { PriceConfig } from "./price-config";
-import { PriceInfo, PriceListener } from "./price-listener";
+import { PriceInfo, PriceListener } from "./interface";
 
 export class PythPriceListener implements PriceListener {
   private connection: PriceServiceConnection;

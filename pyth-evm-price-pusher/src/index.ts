@@ -6,8 +6,8 @@ import {
   EvmPriceServiceConnection,
   CONTRACT_ADDR,
 } from "@pythnetwork/pyth-evm-js";
-import { Pusher } from "./pusher";
-import { EvmPriceListener } from "./evm-price-listener";
+import { Controller } from "./controller";
+import { EvmOnchainPricePusher, EvmPriceListener } from "./evm";
 import { PythPriceListener } from "./pyth-price-listener";
 import fs from "fs";
 import { readPriceConfigFile } from "./price-config";
@@ -101,12 +101,16 @@ async function run() {
 
   const pythPriceListener = new PythPriceListener(connection, priceConfigs);
 
-  const handler = new Pusher(
+  const pythContract = new EvmOnchainPricePusher(
     connection,
-    pythContractFactory,
-    evmPriceListener,
-    pythPriceListener,
+    pythContractFactory.createPythContractWithPayer()
+  );
+
+  const handler = new Controller(
     priceConfigs,
+    pythPriceListener,
+    evmPriceListener,
+    pythContract,
     {
       cooldownDuration: argv.cooldownDuration,
     }
