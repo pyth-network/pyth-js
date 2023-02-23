@@ -11,7 +11,7 @@ import { EvmOnchainPricePusher, EvmPriceListener } from "./evm";
 import { PythPriceListener } from "./pyth-price-listener";
 import fs from "fs";
 import { readPriceConfigFile } from "./price-config";
-import { PythContractFactory } from "./pyth-contract-factory";
+import { PythContractFactory } from "./evm";
 
 const argv = yargs(hideBin(process.argv))
   .option("evm-endpoint", {
