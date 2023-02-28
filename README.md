@@ -1,6 +1,6 @@
 # Pyth JS
 
-**Warning** The content of this repository is being moved into [pyth-crosschain](https://github.com/pyth-network/pyth-crosschain).
+:warning: **Warning** The content of this repository is being moved into [pyth-crosschain](https://github.com/pyth-network/pyth-crosschain).
 Please see `target_chains/<chain_name>/sdk/js` for the relevant chain-specific JS SDK, and `price_pusher` for the price pusher.
 
 The Pyth JS repo provides utilities for consuming price feeds from the [pyth.network](https://pyth.network/) oracle in JavaScript.
