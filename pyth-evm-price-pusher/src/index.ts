@@ -12,6 +12,7 @@ import { PythPriceListener } from "./pyth-price-listener";
 import fs from "fs";
 import { readPriceConfigFile } from "./price-config";
 import { PythContractFactory } from "./pyth-contract-factory";
+import { CustomGasStation } from "./custom-gas-station";
 
 const argv = yargs(hideBin(process.argv))
   .option("evm-endpoint", {
@@ -63,6 +64,18 @@ const argv = yargs(hideBin(process.argv))
     required: false,
     default: 5,
   })
+  .option("custom-gas-station", {
+    description:
+      "If using a custom gas station, chainId of custom gas station to use",
+    type: "number",
+    required: false,
+  })
+  .option("tx-speed", {
+    description:
+      "txSpeed for custom gas station. choose between 'slow'|'standard'|'fast'",
+    type: "string",
+    required: false,
+  })
   .help()
   .alias("help", "h")
   .parserConfiguration({
@@ -101,6 +114,15 @@ async function run() {
 
   const pythPriceListener = new PythPriceListener(connection, priceConfigs);
 
+  let customGasStation: CustomGasStation | undefined;
+
+  if (argv.customGasStation && argv.txSpeed) {
+    customGasStation = new CustomGasStation(
+      argv.customGasStation,
+      argv.txSpeed
+    );
+  }
+
   const handler = new Pusher(
     connection,
     pythContractFactory,
@@ -109,7 +131,8 @@ async function run() {
     priceConfigs,
     {
       cooldownDuration: argv.cooldownDuration,
-    }
+    },
+    customGasStation
   );
 
   await evmPriceListener.start();
