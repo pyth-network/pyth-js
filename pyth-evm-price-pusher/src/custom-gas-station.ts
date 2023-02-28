@@ -24,7 +24,7 @@ export class CustomGasStation {
     return this.chainMethods[this.chain]();
   }
 
-  async fetchMaticMainnetGasPrice() {
+  private async fetchMaticMainnetGasPrice() {
     const res = await fetch("https://gasstation-mainnet.matic.network/v2");
     const jsonRes = await res.json();
     const gasPrice = jsonRes[this.speed].maxFee;
