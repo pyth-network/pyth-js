@@ -8,6 +8,7 @@ import { Contract } from "web3-eth-contract";
 import { PriceConfig } from "./price-config";
 import { TransactionReceipt } from "ethereum-protocol";
 import { PythContractFactory } from "./pyth-contract-factory";
+import { CustomGasStation } from "./custom-gas-station";
 
 export class Pusher {
   private connection: EvmPriceServiceConnection;
@@ -16,8 +17,8 @@ export class Pusher {
   private targetPriceListener: PriceListener;
   private sourcePriceListener: PriceListener;
   private priceConfigs: PriceConfig[];
-
   private cooldownDuration: DurationInSeconds;
+  private customGasStation?: CustomGasStation;
 
   constructor(
     connection: EvmPriceServiceConnection,
@@ -27,7 +28,8 @@ export class Pusher {
     priceConfigs: PriceConfig[],
     config: {
       cooldownDuration: DurationInSeconds;
-    }
+    },
+    customGasStation?: CustomGasStation
   ) {
     this.connection = connection;
     this.targetPriceListener = targetPriceListener;
@@ -38,6 +40,7 @@ export class Pusher {
 
     this.pythContractFactory = pythContractFactory;
     this.pythContract = this.pythContractFactory.createPythContractWithPayer();
+    this.customGasStation = customGasStation;
   }
 
   async start() {
@@ -96,13 +99,15 @@ export class Pusher {
       .call();
     console.log(`Update fee: ${updateFee}`);
 
+    const gasPrice = await this.customGasStation?.getCustomGasPrice();
+
     this.pythContract.methods
       .updatePriceFeedsIfNecessary(
         priceFeedUpdateData,
         priceIds,
         pubTimesToPush
       )
-      .send({ value: updateFee })
+      .send({ value: updateFee, gasPrice })
       .on("transactionHash", (hash: string) => {
         console.log(`Successful. Tx hash: ${hash}`);
       })
