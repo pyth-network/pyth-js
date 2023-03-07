@@ -17,6 +17,7 @@
     "build": "tsc",
     "example-client": "npm run build && node lib/examples/EvmPriceServiceClient.js",
     "example-relay": "npm run build && node lib/examples/EvmRelay.js",
+    "example-wormhole": "npm run build && node lib/examples/WormholeTest.js",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint src/",
     "prepare": "npm run build",
