@@ -18,6 +18,7 @@ const argv = yargs(hideBin(process.argv))
         type: "string",
         required: true,
     })
+    // This is actually the wormhole contract address (sorry, it's a hack)
     .option("pyth-contract", {
         description: "Pyth contract address.",
         type: "string",
