@@ -1,5 +1,3 @@
-export { EvmPriceServiceConnection } from "./EvmPriceServiceConnection";
-
 export {
   DurationInMs,
   HexString,
@@ -8,6 +6,7 @@ export {
   PriceServiceConnectionConfig,
   UnixTimestamp,
 } from "@pythnetwork/pyth-common-js";
+export { EvmPriceServiceConnection } from "./EvmPriceServiceConnection";
 
 export const CONTRACT_ADDR: Record<string, string> = {
   bnb_testnet: "0xd7308b14BF4008e7C7196eC35610B1427C5702EA",
@@ -33,4 +32,6 @@ export const CONTRACT_ADDR: Record<string, string> = {
   cronos_testnet: "0xBAEA4A1A2Eaa4E9bb78f2303C213Da152933170E",
   arbitrum_goerli: "0x939C0e902FF5B3F7BA666Cc8F6aC75EE76d3f900",
   zksync_goerli: "0xF532F2C1bB7b67E08f7D8B76f9fF804D0831725e",
+  evmos: "0x354bF866A4B006C9AF9d9e06d9364217A8616E12",
+  evmos_testnet: "0x354bF866A4B006C9AF9d9e06d9364217A8616E12",
 };
