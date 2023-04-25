@@ -79,7 +79,7 @@ async function run() {
     .call();
   console.log(`Update fee: ${updateFee}`);
 
-  pythContract.methods
+  await pythContract.methods
     .updatePriceFeeds(priceFeedUpdateData)
     .send({ value: updateFee })
     .on("transactionHash", (hash: string) => {
